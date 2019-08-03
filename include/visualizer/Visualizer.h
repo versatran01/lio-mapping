@@ -1,28 +1,28 @@
 /**
-* This file is part of LIO-mapping.
-* 
-* Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
-* Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
-* The Hong Kong University of Science and Technology
-* 
-* For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
-* or <https://sites.google.com/view/lio-mapping>.
-* If you use this code, please cite the respective publications as
-* listed on the above websites.
-* 
-* LIO-mapping is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* LIO-mapping is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of LIO-mapping.
+ *
+ * Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
+ * Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
+ * The Hong Kong University of Science and Technology
+ *
+ * For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
+ * or <https://sites.google.com/view/lio-mapping>.
+ * If you use this code, please cite the respective publications as
+ * listed on the above websites.
+ *
+ * LIO-mapping is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LIO-mapping is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //
 // Created by hyye on 4/7/18.
@@ -39,12 +39,12 @@
 
 #include <iostream>
 
-#include <boost/thread/thread.hpp>
 #include <pcl/common/common_headers.h>
+#include <pcl/console/parse.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/console/parse.h>
+#include <boost/thread/thread.hpp>
 
 namespace lio {
 
@@ -55,7 +55,8 @@ class Visualizer {
              std::vector<double> lidar_color = {1.0, 1.0, 0.0});
 
   void UpdateMarker(visualization_msgs::Marker &marker, const Transform &pose);
-  void UpdateMarkers(std::vector<Transform> imu_poses, std::vector<Transform> lidar_poses);
+  void UpdateMarkers(std::vector<Transform> imu_poses,
+                     std::vector<Transform> lidar_poses);
   void UpdateVelocity(double velocity);
   void PublishMarkers();
 
@@ -69,7 +70,6 @@ class Visualizer {
   visualization_msgs::MarkerArray lidar_markers_;
 
   std::string vis_name_;
-
 };
 
 class PlaneNormalVisualizer {
@@ -80,23 +80,23 @@ class PlaneNormalVisualizer {
                    std::string cloud_name = "cloud",
                    std::vector<double> cloud_color = {1.0, 0.0, 1.0});
 
-  void UpdateCloudAndNormals(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud,
-                             pcl::PointCloud<pcl::Normal>::ConstPtr normals,
-                             int ds_ratio = 10,
-                             std::string cloud_name = "cloud",
-                             std::string normals_name = "normals",
-                             std::vector<double> cloud_color = {1.0, 1.0, 1.0},
-                             std::vector<double> normals_color = {1.0, 1.0, 0.0});
+  void UpdateCloudAndNormals(
+      pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud,
+      pcl::PointCloud<pcl::Normal>::ConstPtr normals, int ds_ratio = 10,
+      std::string cloud_name = "cloud", std::string normals_name = "normals",
+      std::vector<double> cloud_color = {1.0, 1.0, 1.0},
+      std::vector<double> normals_color = {1.0, 1.0, 0.0});
 
   void UpdateLines(pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud1,
                    pcl::PointCloud<pcl::PointXYZ>::ConstPtr cloud2,
                    std::vector<double> line_color = {0.0, 1.0, 0.0});
 
   void UpdatePlanes(const std::vector<Eigen::Vector4d,
-                                      Eigen::aligned_allocator<Eigen::Vector4d>> &plane_coeffs);
+                                      Eigen::aligned_allocator<Eigen::Vector4d>>
+                        &plane_coeffs);
 
   boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
-//  pcl::visualization::PCLVisualizer* viewer;
+  //  pcl::visualization::PCLVisualizer* viewer;
   boost::mutex m;
   bool init = false;
   bool first = false;
@@ -105,10 +105,10 @@ class PlaneNormalVisualizer {
   std::vector<std::string> plane_names;
 };
 
-template<typename PointT>
-void CoeffsToVisualizationMsgs(const multimap<float, pair<PointT, PointT>, greater<float> > &spc_map,
-                               const Transform &transform,
-                               visualization_msgs::MarkerArray &marker_array) {
+template <typename PointT>
+void CoeffsToVisualizationMsgs(
+    const multimap<float, pair<PointT, PointT>, greater<float>> &spc_map,
+    const Transform &transform, visualization_msgs::MarkerArray &marker_array) {
   marker_array.markers.clear();
 
   visualization_msgs::Marker marker;
@@ -126,7 +126,7 @@ void CoeffsToVisualizationMsgs(const multimap<float, pair<PointT, PointT>, great
     marker.scale.x = 0.5;
     marker.scale.y = 0.05;
     marker.scale.z = 0.05;
-    marker.color.a = 1.0; // Don't forget to set the alpha!
+    marker.color.a = 1.0;  // Don't forget to set the alpha!
     marker.color.r = 1.0;
     marker.color.g = 1.0;
     marker.color.b = 0.0;
@@ -135,27 +135,31 @@ void CoeffsToVisualizationMsgs(const multimap<float, pair<PointT, PointT>, great
     marker.ns = "plane";
   }
 
-  typedef multimap<float, pair<PointT, PointT>, greater<float> > ScorePointCoeffMap;
+  typedef multimap<float, pair<PointT, PointT>, greater<float>>
+      ScorePointCoeffMap;
   int j;
   typename ScorePointCoeffMap::const_iterator it_point_coeff;
 
   for (j = 0, it_point_coeff = spc_map.begin(); it_point_coeff != spc_map.end();
        ++j, ++it_point_coeff) {
     if (j % 10 == 0) {
-
       const double &s = it_point_coeff->first;
       const PointT &p = it_point_coeff->second.first;
       const PointT &coeff = it_point_coeff->second.second;
 
       Eigen::Vector4d p_eigen(p.x, p.y, p.z, 1.0);
 
-      p_eigen = (transform.transform().matrix().cast<double>() * p_eigen).eval();
+      p_eigen =
+          (transform.transform().matrix().cast<double>() * p_eigen).eval();
 
       Eigen::Vector4d coeff_eigen(coeff.x, coeff.y, coeff.z, coeff.intensity);
       double dis = p_eigen.dot(coeff_eigen);
-      Eigen::Vector3d proj_point = p_eigen.head<3>() - dis * coeff_eigen.head<3>();
+      Eigen::Vector3d proj_point =
+          p_eigen.head<3>() - dis * coeff_eigen.head<3>();
       Eigen::Quaterniond proj_ori =
-          Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d(1.0, 0.0, 0.0), coeff_eigen.head<3>()).normalized();
+          Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d(1.0, 0.0, 0.0),
+                                             coeff_eigen.head<3>())
+              .normalized();
 
       marker.pose.position.x = proj_point.x();
       marker.pose.position.y = proj_point.y();
@@ -176,34 +180,31 @@ void CoeffsToVisualizationMsgs(const multimap<float, pair<PointT, PointT>, great
       if (marker.id >= 200) {
         break;
       }
-
     }
-
   }
-//  DLOG(INFO) << "spc_map.size(): " << spc_map.size() << " j: " << j;
+  //  DLOG(INFO) << "spc_map.size(): " << spc_map.size() << " j: " << j;
 
   while (marker.id < 200) {
     marker.id += 1;
     marker_array.markers.push_back(marker);
   }
-
 }
 
-template<typename PointT>
-void CoeffsToCloudNormal(const multimap<float, pair<PointT, PointT>, greater<float> > &spc_map,
-                         const Transform &transform,
-                         pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud,
-                         pcl::PointCloud<pcl::Normal>::Ptr &normals) {
+template <typename PointT>
+void CoeffsToCloudNormal(
+    const multimap<float, pair<PointT, PointT>, greater<float>> &spc_map,
+    const Transform &transform, pcl::PointCloud<pcl::PointXYZ>::Ptr &cloud,
+    pcl::PointCloud<pcl::Normal>::Ptr &normals) {
   cloud->clear();
   normals->clear();
 
-  typedef multimap<float, pair<PointT, PointT>, greater<float> > ScorePointCoeffMap;
+  typedef multimap<float, pair<PointT, PointT>, greater<float>>
+      ScorePointCoeffMap;
   int j;
   typename ScorePointCoeffMap::const_iterator it_point_coeff;
 
   for (j = 0, it_point_coeff = spc_map.begin(); it_point_coeff != spc_map.end();
        ++j, ++it_point_coeff) {
-
     const double &s = it_point_coeff->first;
     const PointT &p = it_point_coeff->second.first;
     const PointT &coeff = it_point_coeff->second.second;
@@ -214,9 +215,12 @@ void CoeffsToCloudNormal(const multimap<float, pair<PointT, PointT>, greater<flo
 
     Eigen::Vector4d coeff_eigen(coeff.x, coeff.y, coeff.z, coeff.intensity);
     double dis = p_eigen.dot(coeff_eigen);
-    Eigen::Vector3d proj_point = p_eigen.head<3>() - dis * coeff_eigen.head<3>();
+    Eigen::Vector3d proj_point =
+        p_eigen.head<3>() - dis * coeff_eigen.head<3>();
     Eigen::Quaterniond proj_ori =
-        Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d(1.0, 0.0, 0.0), coeff_eigen.head<3>()).normalized();
+        Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d(1.0, 0.0, 0.0),
+                                           coeff_eigen.head<3>())
+            .normalized();
 
     if (coeff_eigen.head<3>().dot(proj_point) > 0) {
       coeff_eigen.head<3>() = -(coeff_eigen.head<3>()).eval();
@@ -233,6 +237,6 @@ void CoeffsToCloudNormal(const multimap<float, pair<PointT, PointT>, greater<flo
   }
 }
 
-} // namespace lio
+}  // namespace lio
 
-#endif //LIO_VISUALIZER_H_
+#endif  // LIO_VISUALIZER_H_

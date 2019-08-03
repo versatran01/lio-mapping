@@ -1,28 +1,28 @@
 /**
-* This file is part of LIO-mapping.
-* 
-* Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
-* Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
-* The Hong Kong University of Science and Technology
-* 
-* For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
-* or <https://sites.google.com/view/lio-mapping>.
-* If you use this code, please cite the respective publications as
-* listed on the above websites.
-* 
-* LIO-mapping is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* LIO-mapping is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of LIO-mapping.
+ *
+ * Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
+ * Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
+ * The Hong Kong University of Science and Technology
+ *
+ * For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
+ * or <https://sites.google.com/view/lio-mapping>.
+ * If you use this code, please cite the respective publications as
+ * listed on the above websites.
+ *
+ * LIO-mapping is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LIO-mapping is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //
 // Created by hyye on 5/31/18.
@@ -33,11 +33,11 @@
 
 #include <Eigen/Eigen>
 
-#include <ros/ros.h>
-#include <pcl/io/pcd_io.h>
 #include <pcl/common/transforms.h>
-#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <tf/transform_datatypes.h>
 
@@ -47,8 +47,8 @@
 #include <geometry_msgs/Quaternion.h>
 #include <nav_msgs/Odometry.h>
 
-#include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
+#include <opencv2/opencv.hpp>
 
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
@@ -85,7 +85,9 @@ void OdomHandler(const nav_msgs::Odometry::ConstPtr &odom_msg) {
 }
 
 void ProcessData() {
-  if (laser_available && odom_available && (tmp_odom_msg.header.stamp - tmp_points_msg.header.stamp).toSec() < 0.005) {
+  if (laser_available && odom_available &&
+      (tmp_odom_msg.header.stamp - tmp_points_msg.header.stamp).toSec() <
+          0.005) {
     odom_available = false;
     laser_available = false;
   } else {
@@ -95,18 +97,18 @@ void ProcessData() {
   Eigen::Affine3f transform_to_init;
   transform_to_init.setIdentity();
 
-//  transform_to_init.translation() =
-//      Eigen::Vector3f(tmp_odom_msg.pose.pose.position.x,
-//                      tmp_odom_msg.pose.pose.position.y,
-//                      tmp_odom_msg.pose.pose.position.z);
-//
-//  Eigen::Quaternionf tmp_quat;
-//  tmp_quat.x() = tmp_odom_msg.pose.pose.orientation.x;
-//  tmp_quat.y() = tmp_odom_msg.pose.pose.orientation.y;
-//  tmp_quat.z() = tmp_odom_msg.pose.pose.orientation.z;
-//  tmp_quat.w() = tmp_odom_msg.pose.pose.orientation.w;
-//
-//  transform_to_init.linear() = tmp_quat.normalized().toRotationMatrix();
+  //  transform_to_init.translation() =
+  //      Eigen::Vector3f(tmp_odom_msg.pose.pose.position.x,
+  //                      tmp_odom_msg.pose.pose.position.y,
+  //                      tmp_odom_msg.pose.pose.position.z);
+  //
+  //  Eigen::Quaternionf tmp_quat;
+  //  tmp_quat.x() = tmp_odom_msg.pose.pose.orientation.x;
+  //  tmp_quat.y() = tmp_odom_msg.pose.pose.orientation.y;
+  //  tmp_quat.z() = tmp_odom_msg.pose.pose.orientation.z;
+  //  tmp_quat.w() = tmp_odom_msg.pose.pose.orientation.w;
+  //
+  //  transform_to_init.linear() = tmp_quat.normalized().toRotationMatrix();
 
   pcl::PointCloud<pcl::PointXYZI> transformed_cloud;
 
@@ -114,14 +116,15 @@ void ProcessData() {
 
   map_points += transformed_cloud;
 
-  DLOG(INFO) << "transform_to_init: " << std::endl << transform_to_init.matrix();
+  DLOG(INFO) << "transform_to_init: " << std::endl
+             << transform_to_init.matrix();
   DLOG(INFO) << "merged: " << frame_count << "th frame";
   ++frame_count;
-
 }
 
 // Load bag
-void LoadBag(const std::string &input_filename, const std::string &output_filename) {
+void LoadBag(const std::string &input_filename,
+             const std::string &output_filename) {
   rosbag::Bag bag;
   bag.open(input_filename, rosbag::bagmode::Read);
 
@@ -131,25 +134,25 @@ void LoadBag(const std::string &input_filename, const std::string &output_filena
 
   rosbag::View view(bag, rosbag::TopicQuery(topics));
 
-      foreach(rosbag::MessageInstance const m, view) {
-          sensor_msgs::PointCloud2ConstPtr ptc = m.instantiate<sensor_msgs::PointCloud2>();
-          nav_msgs::OdometryConstPtr odom = m.instantiate<nav_msgs::Odometry>();
+  foreach (rosbag::MessageInstance const m, view) {
+    sensor_msgs::PointCloud2ConstPtr ptc =
+        m.instantiate<sensor_msgs::PointCloud2>();
+    nav_msgs::OdometryConstPtr odom = m.instantiate<nav_msgs::Odometry>();
 
-          if (odom != NULL) {
-            OdomHandler(odom);
-            ProcessData();
-          }
+    if (odom != NULL) {
+      OdomHandler(odom);
+      ProcessData();
+    }
 
-          if (ptc != NULL) {
-            LaserHandler(ptc);
-            ProcessData();
-          }
+    if (ptc != NULL) {
+      LaserHandler(ptc);
+      ProcessData();
+    }
 
-          if (!ros::ok()) {
-            break;
-          }
-
-        }
+    if (!ros::ok()) {
+      break;
+    }
+  }
 
   bag.close();
 
@@ -164,14 +167,14 @@ void LoadBag(const std::string &input_filename, const std::string &output_filena
 }
 
 int main(int argc, char **argv) {
-
   google::InitGoogleLogging(argv[0]);
   google::ParseCommandLineFlags(&argc, &argv, true);
   FLAGS_alsologtostderr = true;
 
   ros::init(argc, argv, "map_builder");
 
-  ros::NodeHandle nh("~");;
+  ros::NodeHandle nh("~");
+  ;
 
   std::string input_filename = FLAGS_input_filename;
   std::string output_filename = FLAGS_output_filename;
@@ -184,4 +187,3 @@ int main(int argc, char **argv) {
 
   return 0;
 }
-
