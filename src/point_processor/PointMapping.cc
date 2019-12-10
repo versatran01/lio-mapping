@@ -1,28 +1,28 @@
 /**
-* This file is part of LIO-mapping.
-* 
-* Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
-* Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
-* The Hong Kong University of Science and Technology
-* 
-* For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
-* or <https://sites.google.com/view/lio-mapping>.
-* If you use this code, please cite the respective publications as
-* listed on the above websites.
-* 
-* LIO-mapping is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* LIO-mapping is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of LIO-mapping.
+ *
+ * Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
+ * Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
+ * The Hong Kong University of Science and Technology
+ *
+ * For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
+ * or <https://sites.google.com/view/lio-mapping>.
+ * If you use this code, please cite the respective publications as
+ * listed on the above websites.
+ *
+ * LIO-mapping is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LIO-mapping is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //
 // Created by hyye on 3/25/18.
@@ -64,8 +64,7 @@
 
 namespace lio {
 
-PointMapping::PointMapping(float scan_period,
-                           size_t num_max_iterations)
+PointMapping::PointMapping(float scan_period, size_t num_max_iterations)
     : scan_period_(scan_period),
       num_stack_frames_(1),
       num_map_frames_(5),
@@ -80,7 +79,8 @@ PointMapping::PointMapping(float scan_period,
       laser_cloud_length_(21),
       laser_cloud_width_(21),
       laser_cloud_height_(11),
-      laser_cloud_num_(laser_cloud_length_ * laser_cloud_width_ * laser_cloud_height_),
+      laser_cloud_num_(laser_cloud_length_ * laser_cloud_width_ *
+                       laser_cloud_height_),
       laser_cloud_corner_last_(new PointCloud()),
       laser_cloud_surf_last_(new PointCloud()),
       full_cloud_(new PointCloud()),
@@ -123,53 +123,57 @@ PointMapping::PointMapping(float scan_period,
   down_size_filter_map_.setLeafSize(0.6, 0.6, 0.6);
 
   // setup down size filters indoor
-//  down_size_filter_corner_.setLeafSize(0.1, 0.1, 0.1);
-//  down_size_filter_surf_.setLeafSize(0.2, 0.2, 0.2);
-//  down_size_filter_map_.setLeafSize(0.2, 0.2, 0.2);
-} // PointMapping
+  //  down_size_filter_corner_.setLeafSize(0.1, 0.1, 0.1);
+  //  down_size_filter_surf_.setLeafSize(0.2, 0.2, 0.2);
+  //  down_size_filter_map_.setLeafSize(0.2, 0.2, 0.2);
+}  // PointMapping
 
 void PointMapping::SetupRos(ros::NodeHandle &nh, bool enable_sub) {
-
   is_ros_setup_ = true;
 
   nh.param("compact_data", compact_data_, true);
 
   // advertise laser odometry topics
-  pub_laser_cloud_surround_ = nh.advertise<sensor_msgs::PointCloud2>("/laser_cloud_surround", 2);
-  pub_full_cloud_ = nh.advertise<sensor_msgs::PointCloud2>("/cloud_registered", 2);
-  pub_odom_aft_mapped_ = nh.advertise<nav_msgs::Odometry>("/aft_mapped_to_init", 5);
+  pub_laser_cloud_surround_ =
+      nh.advertise<sensor_msgs::PointCloud2>("/laser_cloud_surround", 2);
+  pub_full_cloud_ =
+      nh.advertise<sensor_msgs::PointCloud2>("/cloud_registered", 2);
+  pub_odom_aft_mapped_ =
+      nh.advertise<nav_msgs::Odometry>("/aft_mapped_to_init", 5);
 
   /// for test
-//  pub_diff_odometry_ = nh.advertise<nav_msgs::Odometry>("/laser_odom_to_last", 5);
+  //  pub_diff_odometry_ =
+  //  nh.advertise<nav_msgs::Odometry>("/laser_odom_to_last", 5);
 
   if (enable_sub) {
-
     if (compact_data_) {
-      sub_compact_data_ =
-          nh.subscribe<sensor_msgs::PointCloud2>("/compact_data", 2, &PointMapping::CompactDataHandler, this);
+      sub_compact_data_ = nh.subscribe<sensor_msgs::PointCloud2>(
+          "/compact_data", 2, &PointMapping::CompactDataHandler, this);
     } else {
       // subscribe to scan registration topics
-      sub_laser_cloud_corner_last_ = nh.subscribe<sensor_msgs::PointCloud2>
-          ("/laser_cloud_corner_last", 2, &PointMapping::LaserCloudCornerLastHandler, this);
+      sub_laser_cloud_corner_last_ = nh.subscribe<sensor_msgs::PointCloud2>(
+          "/laser_cloud_corner_last", 2,
+          &PointMapping::LaserCloudCornerLastHandler, this);
 
-      sub_laser_cloud_surf_last_ = nh.subscribe<sensor_msgs::PointCloud2>
-          ("/laser_cloud_surf_last", 2, &PointMapping::LaserCloudSurfLastHandler, this);
+      sub_laser_cloud_surf_last_ = nh.subscribe<sensor_msgs::PointCloud2>(
+          "/laser_cloud_surf_last", 2, &PointMapping::LaserCloudSurfLastHandler,
+          this);
 
-      sub_laser_full_cloud_ = nh.subscribe<sensor_msgs::PointCloud2>
-          ("/full_odom_cloud", 2, &PointMapping::LaserFullCloudHandler, this);
+      sub_laser_full_cloud_ = nh.subscribe<sensor_msgs::PointCloud2>(
+          "/full_odom_cloud", 2, &PointMapping::LaserFullCloudHandler, this);
 
-      sub_laser_odometry_ = nh.subscribe<nav_msgs::Odometry>
-          ("/laser_odom_to_init", 2, &PointMapping::LaserOdometryHandler, this);
+      sub_laser_odometry_ = nh.subscribe<nav_msgs::Odometry>(
+          "/laser_odom_to_init", 2, &PointMapping::LaserOdometryHandler, this);
 
-//  sub_imu_trans_ = node.subscribe<sensor_msgs::PointCloud2>
-//      ("/imu_trans", 5, &LaserOdometry::ImuTransHandler, this);
+      //  sub_imu_trans_ = node.subscribe<sensor_msgs::PointCloud2>
+      //      ("/imu_trans", 5, &LaserOdometry::ImuTransHandler, this);
     }
   }
 
-} // SetupRos
+}  // SetupRos
 
-void PointMapping::CompactDataHandler(const sensor_msgs::PointCloud2ConstPtr &compact_data_msg) {
-
+void PointMapping::CompactDataHandler(
+    const sensor_msgs::PointCloud2ConstPtr &compact_data_msg) {
   TicToc tic_toc_decoder;
 
   PointCloud compact_points;
@@ -189,8 +193,8 @@ void PointMapping::CompactDataHandler(const sensor_msgs::PointCloud2ConstPtr &co
   int full_size = int(compact_point.z);
 
   if ((3 + corner_size + surf_size + full_size) != compact_point_size) {
-    LOG(ERROR) << "compact data error: 3+" << corner_size << "+" << surf_size << "+" << full_size << " != "
-               << compact_point_size;
+    LOG(ERROR) << "compact data error: 3+" << corner_size << "+" << surf_size
+               << "+" << full_size << " != " << compact_point_size;
     return;
   }
 
@@ -237,7 +241,8 @@ void PointMapping::CompactDataHandler(const sensor_msgs::PointCloud2ConstPtr &co
   DLOG(INFO) << "decode compact data time: " << tic_toc_decoder.Toc() << " ms";
 }
 
-void PointMapping::LaserCloudCornerLastHandler(const sensor_msgs::PointCloud2ConstPtr &corner_points_sharp_msg) {
+void PointMapping::LaserCloudCornerLastHandler(
+    const sensor_msgs::PointCloud2ConstPtr &corner_points_sharp_msg) {
   time_laser_cloud_corner_last_ = corner_points_sharp_msg->header.stamp;
 
   laser_cloud_corner_last_->clear();
@@ -246,7 +251,8 @@ void PointMapping::LaserCloudCornerLastHandler(const sensor_msgs::PointCloud2Con
   new_laser_cloud_corner_last_ = true;
 }
 
-void PointMapping::LaserCloudSurfLastHandler(const sensor_msgs::PointCloud2ConstPtr &corner_points_less_sharp_msg) {
+void PointMapping::LaserCloudSurfLastHandler(
+    const sensor_msgs::PointCloud2ConstPtr &corner_points_less_sharp_msg) {
   time_laser_cloud_surf_last_ = corner_points_less_sharp_msg->header.stamp;
 
   laser_cloud_surf_last_->clear();
@@ -255,7 +261,8 @@ void PointMapping::LaserCloudSurfLastHandler(const sensor_msgs::PointCloud2Const
   new_laser_cloud_surf_last_ = true;
 }
 
-void PointMapping::LaserFullCloudHandler(const sensor_msgs::PointCloud2ConstPtr &full_cloud_msg) {
+void PointMapping::LaserFullCloudHandler(
+    const sensor_msgs::PointCloud2ConstPtr &full_cloud_msg) {
   time_laser_full_cloud_ = full_cloud_msg->header.stamp;
 
   full_cloud_->clear();
@@ -264,7 +271,8 @@ void PointMapping::LaserFullCloudHandler(const sensor_msgs::PointCloud2ConstPtr 
   new_laser_full_cloud_ = true;
 }
 
-void PointMapping::LaserOdometryHandler(const nav_msgs::Odometry::ConstPtr &laser_odom_msg) {
+void PointMapping::LaserOdometryHandler(
+    const nav_msgs::Odometry::ConstPtr &laser_odom_msg) {
   time_laser_odometry_ = laser_odom_msg->header.stamp;
 
   geometry_msgs::Quaternion geo_quat = laser_odom_msg->pose.pose.orientation;
@@ -290,17 +298,18 @@ void PointMapping::Reset() {
 
 bool PointMapping::HasNewData() {
   return new_laser_cloud_corner_last_ && new_laser_cloud_surf_last_ &&
-      new_laser_full_cloud_ && new_laser_odometry_ &&
-      fabs((time_laser_cloud_corner_last_ - time_laser_odometry_).toSec()) < 0.005 &&
-      fabs((time_laser_cloud_surf_last_ - time_laser_odometry_).toSec()) < 0.005 &&
-      fabs((time_laser_full_cloud_ - time_laser_odometry_).toSec()) < 0.005;
+         new_laser_full_cloud_ && new_laser_odometry_ &&
+         fabs((time_laser_cloud_corner_last_ - time_laser_odometry_).toSec()) <
+             0.005 &&
+         fabs((time_laser_cloud_surf_last_ - time_laser_odometry_).toSec()) <
+             0.005 &&
+         fabs((time_laser_full_cloud_ - time_laser_odometry_).toSec()) < 0.005;
 }
 
-void PointMapping::SetInitFlag(bool set_init) {
-  imu_inited_ = set_init;
-}
+void PointMapping::SetInitFlag(bool set_init) { imu_inited_ = set_init; }
 
-void PointMapping::PointAssociateToMap(const PointT &pi, PointT &po, const Transform &transform_tobe_mapped) {
+void PointMapping::PointAssociateToMap(const PointT &pi, PointT &po,
+                                       const Transform &transform_tobe_mapped) {
   po.x = pi.x;
   po.y = pi.y;
   po.z = pi.z;
@@ -313,7 +322,8 @@ void PointMapping::PointAssociateToMap(const PointT &pi, PointT &po, const Trans
   po.z += transform_tobe_mapped.pos.z();
 }
 
-void PointMapping::PointAssociateTobeMapped(const PointT &pi, PointT &po, const Transform &transform_tobe_mapped) {
+void PointMapping::PointAssociateTobeMapped(
+    const PointT &pi, PointT &po, const Transform &transform_tobe_mapped) {
   po.x = pi.x - transform_tobe_mapped.pos.x();
   po.y = pi.y - transform_tobe_mapped.pos.y();
   po.z = pi.z - transform_tobe_mapped.pos.z();
@@ -323,8 +333,8 @@ void PointMapping::PointAssociateTobeMapped(const PointT &pi, PointT &po, const 
 }
 
 void PointMapping::OptimizeTransformTobeMapped() {
-
-  if (laser_cloud_corner_from_map_->points.size() <= 10 || laser_cloud_surf_from_map_->points.size() <= 100) {
+  if (laser_cloud_corner_from_map_->points.size() <= 10 ||
+      laser_cloud_surf_from_map_->points.size() <= 100) {
     return;
   }
 
@@ -333,8 +343,10 @@ void PointMapping::OptimizeTransformTobeMapped() {
   std::vector<int> point_search_idx(5, 0);
   std::vector<float> point_search_sq_dis(5, 0);
 
-  pcl::KdTreeFLANN<PointT>::Ptr kdtree_corner_from_map(new pcl::KdTreeFLANN<PointT>());
-  pcl::KdTreeFLANN<PointT>::Ptr kdtree_surf_from_map(new pcl::KdTreeFLANN<PointT>());
+  pcl::KdTreeFLANN<PointT>::Ptr kdtree_corner_from_map(
+      new pcl::KdTreeFLANN<PointT>());
+  pcl::KdTreeFLANN<PointT>::Ptr kdtree_surf_from_map(
+      new pcl::KdTreeFLANN<PointT>());
 
   kdtree_corner_from_map->setInputCloud(laser_cloud_corner_from_map_);
   kdtree_surf_from_map->setInputCloud(laser_cloud_surf_from_map_);
@@ -357,8 +369,10 @@ void PointMapping::OptimizeTransformTobeMapped() {
   bool is_degenerate = false;
   matP_.setIdentity();
 
-  size_t laser_cloud_corner_stack_size = laser_cloud_corner_stack_downsampled_->points.size();
-  size_t laser_cloud_surf_stack_size = laser_cloud_surf_stack_downsampled_->points.size();
+  size_t laser_cloud_corner_stack_size =
+      laser_cloud_corner_stack_downsampled_->points.size();
+  size_t laser_cloud_surf_stack_size =
+      laser_cloud_surf_stack_downsampled_->points.size();
 
   PointCloud laser_cloud_ori;
   PointCloud coeff_sel;
@@ -381,15 +395,18 @@ void PointMapping::OptimizeTransformTobeMapped() {
     for (int i = 0; i < laser_cloud_corner_stack_size; ++i) {
       point_ori = laser_cloud_corner_stack_downsampled_->points[i];
       PointAssociateToMap(point_ori, point_sel, transform_tobe_mapped_);
-      kdtree_corner_from_map->nearestKSearch(point_sel, 5, point_search_idx, point_search_sq_dis);
+      kdtree_corner_from_map->nearestKSearch(point_sel, 5, point_search_idx,
+                                             point_search_sq_dis);
 
       if (point_search_sq_dis[4] < min_match_sq_dis_) {
-//        Vector3Intl vc(0, 0, 0);
+        //        Vector3Intl vc(0, 0, 0);
         Eigen::Vector3f vc(0, 0, 0);
 
         for (int j = 0; j < 5; j++) {
-//          vc += Vector3Intl(laser_cloud_corner_from_map_->points[point_search_idx[j]]);
-          const PointT &point_sel_tmp = laser_cloud_corner_from_map_->points[point_search_idx[j]];
+          //          vc +=
+          //          Vector3Intl(laser_cloud_corner_from_map_->points[point_search_idx[j]]);
+          const PointT &point_sel_tmp =
+              laser_cloud_corner_from_map_->points[point_search_idx[j]];
           vc.x() += point_sel_tmp.x;
           vc.y() += point_sel_tmp.y;
           vc.z() += point_sel_tmp.z;
@@ -400,8 +417,11 @@ void PointMapping::OptimizeTransformTobeMapped() {
         mat_a.setZero();
 
         for (int j = 0; j < 5; j++) {
-//          Vector3Intl a = Vector3Intl(laser_cloud_corner_from_map_->points[point_search_idx[j]]) - vc;
-          const PointT &point_sel_tmp = laser_cloud_corner_from_map_->points[point_search_idx[j]];
+          //          Vector3Intl a =
+          //          Vector3Intl(laser_cloud_corner_from_map_->points[point_search_idx[j]])
+          //          - vc;
+          const PointT &point_sel_tmp =
+              laser_cloud_corner_from_map_->points[point_search_idx[j]];
           Eigen::Vector3f a;
           a.x() = point_sel_tmp.x - vc.x();
           a.y() = point_sel_tmp.y - vc.y();
@@ -421,7 +441,6 @@ void PointMapping::OptimizeTransformTobeMapped() {
         mat_V1 = esolver.eigenvectors().real();
 
         if (mat_D1(0, 2) > 3 * mat_D1(0, 1)) {
-
           float x0 = point_sel.x;
           float y0 = point_sel.y;
           float z0 = point_sel.z;
@@ -440,27 +459,41 @@ void PointMapping::OptimizeTransformTobeMapped() {
 
           // NOTE: (P1 - P2) x ((P0 - P1)x(P0 - P2)), point to the point
 
-//          float a012 = sqrt(((x0 - x1) * (y0 - y2) - (x0 - x2) * (y0 - y1))
-//                                * ((x0 - x1) * (y0 - y2) - (x0 - x2) * (y0 - y1))
-//                                + ((x0 - x1) * (z0 - z2) - (x0 - x2) * (z0 - z1))
-//                                    * ((x0 - x1) * (z0 - z2) - (x0 - x2) * (z0 - z1))
-//                                + ((y0 - y1) * (z0 - z2) - (y0 - y2) * (z0 - z1))
-//                                    * ((y0 - y1) * (z0 - z2) - (y0 - y2) * (z0 - z1)));
+          //          float a012 = sqrt(((x0 - x1) * (y0 - y2) - (x0 - x2) * (y0
+          //          - y1))
+          //                                * ((x0 - x1) * (y0 - y2) - (x0 - x2)
+          //                                * (y0 - y1))
+          //                                + ((x0 - x1) * (z0 - z2) - (x0 - x2)
+          //                                * (z0 - z1))
+          //                                    * ((x0 - x1) * (z0 - z2) - (x0 -
+          //                                    x2) * (z0 - z1))
+          //                                + ((y0 - y1) * (z0 - z2) - (y0 - y2)
+          //                                * (z0 - z1))
+          //                                    * ((y0 - y1) * (z0 - z2) - (y0 -
+          //                                    y2) * (z0 - z1)));
 
-//          float l12 = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) + (z1 - z2) * (z1 - z2));
+          //          float l12 = sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 -
+          //          y2) + (z1 - z2) * (z1 - z2));
 
-//          float la = ((y1 - y2) * ((x0 - x1) * (y0 - y2) - (x0 - x2) * (y0 - y1))
-//              + (z1 - z2) * ((x0 - x1) * (z0 - z2) - (x0 - x2) * (z0 - z1))) / a012 / l12;
-//
-//          float lb = -((x1 - x2) * ((x0 - x1) * (y0 - y2) - (x0 - x2) * (y0 - y1))
-//              - (z1 - z2) * ((y0 - y1) * (z0 - z2) - (y0 - y2) * (z0 - z1))) / a012 / l12;
-//
-//          float lc = -((x1 - x2) * ((x0 - x1) * (z0 - z2) - (x0 - x2) * (z0 - z1))
-//              + (y1 - y2) * ((y0 - y1) * (z0 - z2) - (y0 - y2) * (z0 - z1))) / a012 / l12;
+          //          float la = ((y1 - y2) * ((x0 - x1) * (y0 - y2) - (x0 - x2)
+          //          * (y0 - y1))
+          //              + (z1 - z2) * ((x0 - x1) * (z0 - z2) - (x0 - x2) * (z0
+          //              - z1))) / a012 / l12;
+          //
+          //          float lb = -((x1 - x2) * ((x0 - x1) * (y0 - y2) - (x0 -
+          //          x2) * (y0 - y1))
+          //              - (z1 - z2) * ((y0 - y1) * (z0 - z2) - (y0 - y2) * (z0
+          //              - z1))) / a012 / l12;
+          //
+          //          float lc = -((x1 - x2) * ((x0 - x1) * (z0 - z2) - (x0 -
+          //          x2) * (z0 - z1))
+          //              + (y1 - y2) * ((y0 - y1) * (z0 - z2) - (y0 - y2) * (z0
+          //              - z1))) / a012 / l12;
 
           Eigen::Vector3f a012_vec = (X0 - X1).cross(X0 - X2);
 
-          Eigen::Vector3f normal_to_point = ((X1 - X2).cross(a012_vec)).normalized();
+          Eigen::Vector3f normal_to_point =
+              ((X1 - X2).cross(a012_vec)).normalized();
 
           float a012 = a012_vec.norm();
 
@@ -492,20 +525,20 @@ void PointMapping::OptimizeTransformTobeMapped() {
           float squared_side1 = CalcSquaredDiff(transform_pos, point_sel);
           float squared_side2 = CalcSquaredDiff(point_on_z_axis_, point_sel);
 
-          float check1 = 100.0f + squared_side1 - squared_side2
-              - 10.0f * sqrt(3.0f) * sqrt(squared_side1);
+          float check1 = 100.0f + squared_side1 - squared_side2 -
+                         10.0f * sqrt(3.0f) * sqrt(squared_side1);
 
-          float check2 = 100.0f + squared_side1 - squared_side2
-              + 10.0f * sqrt(3.0f) * sqrt(squared_side1);
+          float check2 = 100.0f + squared_side1 - squared_side2 +
+                         10.0f * sqrt(3.0f) * sqrt(squared_side1);
 
-          if (check1 < 0 && check2 > 0) { /// within +-60 degree
+          if (check1 < 0 && check2 > 0) {  /// within +-60 degree
             is_in_laser_fov = true;
           }
 
           if (s > 0.1 && is_in_laser_fov) {
             laser_cloud_ori.push_back(point_ori);
             coeff_sel.push_back(coeff);
-//            abs_coeff_sel_spc.push_back(abs_coeff);
+            //            abs_coeff_sel_spc.push_back(abs_coeff);
           }
         }
       }
@@ -516,13 +549,17 @@ void PointMapping::OptimizeTransformTobeMapped() {
       PointAssociateToMap(point_ori, point_sel, transform_tobe_mapped_);
 
       int num_neighbors = 5;
-      kdtree_surf_from_map->nearestKSearch(point_sel, num_neighbors, point_search_idx, point_search_sq_dis);
+      kdtree_surf_from_map->nearestKSearch(
+          point_sel, num_neighbors, point_search_idx, point_search_sq_dis);
 
       if (point_search_sq_dis[num_neighbors - 1] < min_match_sq_dis_) {
         for (int j = 0; j < num_neighbors; j++) {
-          mat_A0(j, 0) = laser_cloud_surf_from_map_->points[point_search_idx[j]].x;
-          mat_A0(j, 1) = laser_cloud_surf_from_map_->points[point_search_idx[j]].y;
-          mat_A0(j, 2) = laser_cloud_surf_from_map_->points[point_search_idx[j]].z;
+          mat_A0(j, 0) =
+              laser_cloud_surf_from_map_->points[point_search_idx[j]].x;
+          mat_A0(j, 1) =
+              laser_cloud_surf_from_map_->points[point_search_idx[j]].y;
+          mat_A0(j, 2) =
+              laser_cloud_surf_from_map_->points[point_search_idx[j]].z;
         }
         mat_X0 = mat_A0.colPivHouseholderQr().solve(mat_B0);
 
@@ -541,16 +578,21 @@ void PointMapping::OptimizeTransformTobeMapped() {
 
         bool planeValid = true;
         for (int j = 0; j < num_neighbors; j++) {
-          if (fabs(pa * laser_cloud_surf_from_map_->points[point_search_idx[j]].x +
-              pb * laser_cloud_surf_from_map_->points[point_search_idx[j]].y +
-              pc * laser_cloud_surf_from_map_->points[point_search_idx[j]].z + pd) > min_plane_dis_) {
+          if (fabs(pa * laser_cloud_surf_from_map_->points[point_search_idx[j]]
+                            .x +
+                   pb * laser_cloud_surf_from_map_->points[point_search_idx[j]]
+                            .y +
+                   pc * laser_cloud_surf_from_map_->points[point_search_idx[j]]
+                            .z +
+                   pd) > min_plane_dis_) {
             planeValid = false;
             break;
           }
         }
 
         if (planeValid) {
-          float pd2 = pa * point_sel.x + pb * point_sel.y + pc * point_sel.z + pd;
+          float pd2 =
+              pa * point_sel.x + pb * point_sel.y + pc * point_sel.z + pd;
 
           float s = 1 - 0.9f * fabs(pd2) / sqrt(CalcPointDistance(point_sel));
 
@@ -584,13 +626,13 @@ void PointMapping::OptimizeTransformTobeMapped() {
           float squared_side1 = CalcSquaredDiff(transform_pos, point_sel);
           float squared_side2 = CalcSquaredDiff(point_on_z_axis_, point_sel);
 
-          float check1 = 100.0f + squared_side1 - squared_side2
-              - 10.0f * sqrt(3.0f) * sqrt(squared_side1);
+          float check1 = 100.0f + squared_side1 - squared_side2 -
+                         10.0f * sqrt(3.0f) * sqrt(squared_side1);
 
-          float check2 = 100.0f + squared_side1 - squared_side2
-              + 10.0f * sqrt(3.0f) * sqrt(squared_side1);
+          float check2 = 100.0f + squared_side1 - squared_side2 +
+                         10.0f * sqrt(3.0f) * sqrt(squared_side1);
 
-          if (check1 < 0 && check2 > 0) { /// within +-60 degree
+          if (check1 < 0 && check2 > 0) {  /// within +-60 degree
             is_in_laser_fov = true;
           }
 
@@ -618,7 +660,7 @@ void PointMapping::OptimizeTransformTobeMapped() {
     Eigen::VectorXf mat_AtB;
     Eigen::VectorXf mat_X;
 
-    SO3 R_SO3(transform_tobe_mapped_.rot); /// SO3
+    SO3 R_SO3(transform_tobe_mapped_.rot);  /// SO3
 
     for (int i = 0; i < laser_cloud_sel_size; i++) {
       point_ori = laser_cloud_ori.points[i];
@@ -627,8 +669,10 @@ void PointMapping::OptimizeTransformTobeMapped() {
       Eigen::Vector3f p(point_ori.x, point_ori.y, point_ori.z);
       Eigen::Vector3f w(coeff.x, coeff.y, coeff.z);
 
-//      Eigen::Vector3f J_r = w.transpose() * RotationVectorJacobian(R_SO3, p);
-      Eigen::Vector3f J_r = -w.transpose() * (transform_tobe_mapped_.rot * SkewSymmetric(p));
+      //      Eigen::Vector3f J_r = w.transpose() *
+      //      RotationVectorJacobian(R_SO3, p);
+      Eigen::Vector3f J_r =
+          -w.transpose() * (transform_tobe_mapped_.rot * SkewSymmetric(p));
       Eigen::Vector3f J_t = w.transpose();
 
       float d2 = coeff.intensity;
@@ -652,7 +696,7 @@ void PointMapping::OptimizeTransformTobeMapped() {
       Eigen::Matrix<float, 6, 6> mat_V;
       Eigen::Matrix<float, 6, 6> mat_V2;
 
-      Eigen::SelfAdjointEigenSolver<Eigen::Matrix<float, 6, 6> > esolver(matAtA);
+      Eigen::SelfAdjointEigenSolver<Eigen::Matrix<float, 6, 6>> esolver(matAtA);
       mat_E = esolver.eigenvalues().real();
       mat_V = esolver.eigenvectors().real();
 
@@ -694,19 +738,24 @@ void PointMapping::OptimizeTransformTobeMapped() {
     if (!isfinite(r_so3.z())) r_so3.z() = 0;
 
     SO3 tobe_mapped_SO3 = SO3::exp(r_so3);
-//    transform_tobe_mapped_.rot = tobe_mapped_SO3.unit_quaternion().normalized();
+    //    transform_tobe_mapped_.rot =
+    //    tobe_mapped_SO3.unit_quaternion().normalized();
 
     transform_tobe_mapped_.rot =
-        transform_tobe_mapped_.rot * DeltaQ(Eigen::Vector3f(mat_X(0, 0), mat_X(1, 0), mat_X(2, 0)));
+        transform_tobe_mapped_.rot *
+        DeltaQ(Eigen::Vector3f(mat_X(0, 0), mat_X(1, 0), mat_X(2, 0)));
 
-    if (!isfinite(transform_tobe_mapped_.pos.x())) transform_tobe_mapped_.pos.x() = 0.0;
-    if (!isfinite(transform_tobe_mapped_.pos.y())) transform_tobe_mapped_.pos.y() = 0.0;
-    if (!isfinite(transform_tobe_mapped_.pos.z())) transform_tobe_mapped_.pos.z() = 0.0;
+    if (!isfinite(transform_tobe_mapped_.pos.x()))
+      transform_tobe_mapped_.pos.x() = 0.0;
+    if (!isfinite(transform_tobe_mapped_.pos.y()))
+      transform_tobe_mapped_.pos.y() = 0.0;
+    if (!isfinite(transform_tobe_mapped_.pos.z()))
+      transform_tobe_mapped_.pos.z() = 0.0;
 
-    float delta_r = RadToDeg(R_SO3.unit_quaternion().angularDistance(transform_tobe_mapped_.rot));
-    float delta_t = sqrt(pow(mat_X(3, 0) * 100, 2) +
-        pow(mat_X(4, 0) * 100, 2) +
-        pow(mat_X(5, 0) * 100, 2));
+    float delta_r = RadToDeg(
+        R_SO3.unit_quaternion().angularDistance(transform_tobe_mapped_.rot));
+    float delta_t = sqrt(pow(mat_X(3, 0) * 100, 2) + pow(mat_X(4, 0) * 100, 2) +
+                         pow(mat_X(5, 0) * 100, 2));
 
     if (delta_r < delta_r_abort_ && delta_t < delta_t_abort_) {
       DLOG(INFO) << "iter_count: " << iter_count;
@@ -727,33 +776,37 @@ void PointMapping::OptimizeTransformTobeMapped() {
       PointT p_in_map;
       PointAssociateToMap(p_ori, p_in_map, transform_tobe_mapped_);
 
-      spc.first = CalcPointDistance(coeff_in_map); // score
-      spc.second.first = p_ori; // p_ori
+      spc.first = CalcPointDistance(coeff_in_map);  // score
+      spc.second.first = p_ori;                     // p_ori
 
-//      spc.second.second = coeff_in_map; // coeff in map
-//      spc.second.second.intensity = coeff_in_map.intensity
-//          - (coeff_in_map.x * p_in_map.x + coeff_in_map.y * p_in_map.y + coeff_in_map.z * p_in_map.z);
+      //      spc.second.second = coeff_in_map; // coeff in map
+      //      spc.second.second.intensity = coeff_in_map.intensity
+      //          - (coeff_in_map.x * p_in_map.x + coeff_in_map.y * p_in_map.y +
+      //          coeff_in_map.z * p_in_map.z);
 
       spc.second.second = abs_coeff_in_map;
-//      LOG_IF(INFO, p_in_map.x * abs_coeff_in_map.x + p_in_map.y * abs_coeff_in_map.y + p_in_map.z * abs_coeff_in_map.z
-//          + abs_coeff_in_map.intensity < 0)
-//      << "distance: " << p_in_map.x * abs_coeff_in_map.x + p_in_map.y * abs_coeff_in_map.y
-//          + p_in_map.z * abs_coeff_in_map.z + abs_coeff_in_map.intensity << " < 0";
+      //      LOG_IF(INFO, p_in_map.x * abs_coeff_in_map.x + p_in_map.y *
+      //      abs_coeff_in_map.y + p_in_map.z * abs_coeff_in_map.z
+      //          + abs_coeff_in_map.intensity < 0)
+      //      << "distance: " << p_in_map.x * abs_coeff_in_map.x + p_in_map.y *
+      //      abs_coeff_in_map.y
+      //          + p_in_map.z * abs_coeff_in_map.z + abs_coeff_in_map.intensity
+      //          << " < 0";
 
       score_point_coeff_.insert(spc);
 
-
-//      DLOG(INFO) << "distance * scale: "
-//                << coeff_world.x * p_in_map.x + coeff_world.y * p_in_map.y + coeff_world.z * p_in_map.z
-//                    + spc.second.second.intensity;
-
+      //      DLOG(INFO) << "distance * scale: "
+      //                << coeff_world.x * p_in_map.x + coeff_world.y *
+      //                p_in_map.y + coeff_world.z * p_in_map.z
+      //                    + spc.second.second.intensity;
     }
-//    DLOG(INFO) << "^^^^^^^^: " << transform_aft_mapped_;
+    //    DLOG(INFO) << "^^^^^^^^: " << transform_aft_mapped_;
   }
 }
 
 void PointMapping::TransformAssociateToMap() {
-  Transform transform_incre(transform_bef_mapped_.inverse() * transform_sum_.transform());
+  Transform transform_incre(transform_bef_mapped_.inverse() *
+                            transform_sum_.transform());
   transform_tobe_mapped_ = transform_tobe_mapped_ * transform_incre;
 }
 
@@ -788,34 +841,42 @@ void PointMapping::Process() {
   // NOTE: the stack points are the last corner or surf poitns
   size_t laser_cloud_corner_last_size = laser_cloud_corner_last_->points.size();
   for (int i = 0; i < laser_cloud_corner_last_size; i++) {
-    PointAssociateToMap(laser_cloud_corner_last_->points[i], point_sel, transform_tobe_mapped_);
+    PointAssociateToMap(laser_cloud_corner_last_->points[i], point_sel,
+                        transform_tobe_mapped_);
     laser_cloud_corner_stack_->push_back(point_sel);
   }
 
   size_t laser_cloud_surf_last_size = laser_cloud_surf_last_->points.size();
   for (int i = 0; i < laser_cloud_surf_last_size; i++) {
-    PointAssociateToMap(laser_cloud_surf_last_->points[i], point_sel, transform_tobe_mapped_);
+    PointAssociateToMap(laser_cloud_surf_last_->points[i], point_sel,
+                        transform_tobe_mapped_);
     laser_cloud_surf_stack_->push_back(point_sel);
   }
 
-  // NOTE: above codes update the transform with incremental value and update them to the map coordinate
+  // NOTE: above codes update the transform with incremental value and update
+  // them to the map coordinate
 
   point_on_z_axis_.x = 0.0;
   point_on_z_axis_.y = 0.0;
   point_on_z_axis_.z = 10.0;
-  PointAssociateToMap(point_on_z_axis_, point_on_z_axis_, transform_tobe_mapped_);
+  PointAssociateToMap(point_on_z_axis_, point_on_z_axis_,
+                      transform_tobe_mapped_);
 
   // NOTE: in which cube
-  int center_cube_i = int((transform_tobe_mapped_.pos.x() + 25.0) / 50.0) + laser_cloud_cen_length_;
-  int center_cube_j = int((transform_tobe_mapped_.pos.y() + 25.0) / 50.0) + laser_cloud_cen_width_;
-  int center_cube_k = int((transform_tobe_mapped_.pos.z() + 25.0) / 50.0) + laser_cloud_cen_height_;
+  int center_cube_i = int((transform_tobe_mapped_.pos.x() + 25.0) / 50.0) +
+                      laser_cloud_cen_length_;
+  int center_cube_j = int((transform_tobe_mapped_.pos.y() + 25.0) / 50.0) +
+                      laser_cloud_cen_width_;
+  int center_cube_k = int((transform_tobe_mapped_.pos.z() + 25.0) / 50.0) +
+                      laser_cloud_cen_height_;
 
   // NOTE: negative index
   if (transform_tobe_mapped_.pos.x() + 25.0 < 0) --center_cube_i;
   if (transform_tobe_mapped_.pos.y() + 25.0 < 0) --center_cube_j;
   if (transform_tobe_mapped_.pos.z() + 25.0 < 0) --center_cube_k;
 
-//  DLOG(INFO) << "center_before: " << center_cube_i << " " << center_cube_j << " " << center_cube_k;
+  //  DLOG(INFO) << "center_before: " << center_cube_i << " " << center_cube_j
+  //  << " " << center_cube_k;
   {
     while (center_cube_i < 3) {
       for (int j = 0; j < laser_cloud_width_; ++j) {
@@ -823,8 +884,10 @@ void PointMapping::Process() {
           for (int i = laser_cloud_length_ - 1; i >= 1; --i) {
             const size_t index_a = ToIndex(i, j, k);
             const size_t index_b = ToIndex(i - 1, j, k);
-            std::swap(laser_cloud_corner_array_[index_a], laser_cloud_corner_array_[index_b]);
-            std::swap(laser_cloud_surf_array_[index_a], laser_cloud_surf_array_[index_b]);
+            std::swap(laser_cloud_corner_array_[index_a],
+                      laser_cloud_corner_array_[index_b]);
+            std::swap(laser_cloud_surf_array_[index_a],
+                      laser_cloud_surf_array_[index_b]);
           }
           laser_cloud_corner_array_[ToIndex(0, j, k)]->clear();
           laser_cloud_surf_array_[ToIndex(0, j, k)]->clear();
@@ -840,11 +903,15 @@ void PointMapping::Process() {
           for (int i = 0; i < laser_cloud_length_ - 1; ++i) {
             const size_t index_a = ToIndex(i, j, k);
             const size_t index_b = ToIndex(i + 1, j, k);
-            std::swap(laser_cloud_corner_array_[index_a], laser_cloud_corner_array_[index_b]);
-            std::swap(laser_cloud_surf_array_[index_a], laser_cloud_surf_array_[index_b]);
+            std::swap(laser_cloud_corner_array_[index_a],
+                      laser_cloud_corner_array_[index_b]);
+            std::swap(laser_cloud_surf_array_[index_a],
+                      laser_cloud_surf_array_[index_b]);
           }
-          laser_cloud_corner_array_[ToIndex(laser_cloud_length_ - 1, j, k)]->clear();
-          laser_cloud_surf_array_[ToIndex(laser_cloud_length_ - 1, j, k)]->clear();
+          laser_cloud_corner_array_[ToIndex(laser_cloud_length_ - 1, j, k)]
+              ->clear();
+          laser_cloud_surf_array_[ToIndex(laser_cloud_length_ - 1, j, k)]
+              ->clear();
         }
       }
       --center_cube_i;
@@ -857,8 +924,10 @@ void PointMapping::Process() {
           for (int j = laser_cloud_width_ - 1; j >= 1; --j) {
             const size_t index_a = ToIndex(i, j, k);
             const size_t index_b = ToIndex(i, j - 1, k);
-            std::swap(laser_cloud_corner_array_[index_a], laser_cloud_corner_array_[index_b]);
-            std::swap(laser_cloud_surf_array_[index_a], laser_cloud_surf_array_[index_b]);
+            std::swap(laser_cloud_corner_array_[index_a],
+                      laser_cloud_corner_array_[index_b]);
+            std::swap(laser_cloud_surf_array_[index_a],
+                      laser_cloud_surf_array_[index_b]);
           }
           laser_cloud_corner_array_[ToIndex(i, 0, k)]->clear();
           laser_cloud_surf_array_[ToIndex(i, 0, k)]->clear();
@@ -874,11 +943,15 @@ void PointMapping::Process() {
           for (int j = 0; j < laser_cloud_width_ - 1; ++j) {
             const size_t index_a = ToIndex(i, j, k);
             const size_t index_b = ToIndex(i, j + 1, k);
-            std::swap(laser_cloud_corner_array_[index_a], laser_cloud_corner_array_[index_b]);
-            std::swap(laser_cloud_surf_array_[index_a], laser_cloud_surf_array_[index_b]);
+            std::swap(laser_cloud_corner_array_[index_a],
+                      laser_cloud_corner_array_[index_b]);
+            std::swap(laser_cloud_surf_array_[index_a],
+                      laser_cloud_surf_array_[index_b]);
           }
-          laser_cloud_corner_array_[ToIndex(i, laser_cloud_width_ - 1, k)]->clear();
-          laser_cloud_surf_array_[ToIndex(i, laser_cloud_width_ - 1, k)]->clear();
+          laser_cloud_corner_array_[ToIndex(i, laser_cloud_width_ - 1, k)]
+              ->clear();
+          laser_cloud_surf_array_[ToIndex(i, laser_cloud_width_ - 1, k)]
+              ->clear();
         }
       }
       --center_cube_j;
@@ -891,8 +964,10 @@ void PointMapping::Process() {
           for (int k = laser_cloud_height_ - 1; k >= 1; --k) {
             const size_t index_a = ToIndex(i, j, k);
             const size_t index_b = ToIndex(i, j, k - 1);
-            std::swap(laser_cloud_corner_array_[index_a], laser_cloud_corner_array_[index_b]);
-            std::swap(laser_cloud_surf_array_[index_a], laser_cloud_surf_array_[index_b]);
+            std::swap(laser_cloud_corner_array_[index_a],
+                      laser_cloud_corner_array_[index_b]);
+            std::swap(laser_cloud_surf_array_[index_a],
+                      laser_cloud_surf_array_[index_b]);
           }
           laser_cloud_corner_array_[ToIndex(i, j, 0)]->clear();
           laser_cloud_surf_array_[ToIndex(i, j, 0)]->clear();
@@ -908,11 +983,15 @@ void PointMapping::Process() {
           for (int k = 0; k < laser_cloud_height_ - 1; ++k) {
             const size_t index_a = ToIndex(i, j, k);
             const size_t index_b = ToIndex(i, j, k + 1);
-            std::swap(laser_cloud_corner_array_[index_a], laser_cloud_corner_array_[index_b]);
-            std::swap(laser_cloud_surf_array_[index_a], laser_cloud_surf_array_[index_b]);
+            std::swap(laser_cloud_corner_array_[index_a],
+                      laser_cloud_corner_array_[index_b]);
+            std::swap(laser_cloud_surf_array_[index_a],
+                      laser_cloud_surf_array_[index_b]);
           }
-          laser_cloud_corner_array_[ToIndex(i, j, laser_cloud_height_ - 1)]->clear();
-          laser_cloud_surf_array_[ToIndex(i, j, laser_cloud_height_ - 1)]->clear();
+          laser_cloud_corner_array_[ToIndex(i, j, laser_cloud_height_ - 1)]
+              ->clear();
+          laser_cloud_surf_array_[ToIndex(i, j, laser_cloud_height_ - 1)]
+              ->clear();
         }
       }
       --center_cube_k;
@@ -922,24 +1001,26 @@ void PointMapping::Process() {
 
   // NOTE: above slide cubes
 
-
   laser_cloud_valid_idx_.clear();
   laser_cloud_surround_idx_.clear();
 
-//  DLOG(INFO) << "center_after: " << center_cube_i << " " << center_cube_j << " " << center_cube_k;
-//  DLOG(INFO) << "laser_cloud_cen: " << laser_cloud_cen_length_ << " " << laser_cloud_cen_width_ << " "
-//            << laser_cloud_cen_height_;
+  //  DLOG(INFO) << "center_after: " << center_cube_i << " " << center_cube_j <<
+  //  " " << center_cube_k; DLOG(INFO) << "laser_cloud_cen: " <<
+  //  laser_cloud_cen_length_ << " " << laser_cloud_cen_width_ << " "
+  //            << laser_cloud_cen_height_;
 
   for (int i = center_cube_i - 2; i <= center_cube_i + 2; ++i) {
     for (int j = center_cube_j - 2; j <= center_cube_j + 2; ++j) {
       for (int k = center_cube_k - 2; k <= center_cube_k + 2; ++k) {
-        if (i >= 0 && i < laser_cloud_length_ &&
-            j >= 0 && j < laser_cloud_width_ &&
-            k >= 0 && k < laser_cloud_height_) { /// Should always in this condition
+        if (i >= 0 && i < laser_cloud_length_ && j >= 0 &&
+            j < laser_cloud_width_ && k >= 0 &&
+            k < laser_cloud_height_) {  /// Should always in this condition
 
           float center_x = 50.0f * (i - laser_cloud_cen_length_);
           float center_y = 50.0f * (j - laser_cloud_cen_width_);
-          float center_z = 50.0f * (k - laser_cloud_cen_height_); // NOTE: center of the cube
+          float center_z =
+              50.0f *
+              (k - laser_cloud_cen_height_);  // NOTE: center of the cube
 
           PointT transform_pos;
           transform_pos.x = transform_tobe_mapped_.pos.x();
@@ -958,13 +1039,13 @@ void PointMapping::Process() {
                 float squared_side1 = CalcSquaredDiff(transform_pos, corner);
                 float squared_side2 = CalcSquaredDiff(point_on_z_axis_, corner);
 
-                float check1 = 100.0f + squared_side1 - squared_side2
-                    - 10.0f * sqrt(3.0f) * sqrt(squared_side1);
+                float check1 = 100.0f + squared_side1 - squared_side2 -
+                               10.0f * sqrt(3.0f) * sqrt(squared_side1);
 
-                float check2 = 100.0f + squared_side1 - squared_side2
-                    + 10.0f * sqrt(3.0f) * sqrt(squared_side1);
+                float check2 = 100.0f + squared_side1 - squared_side2 +
+                               10.0f * sqrt(3.0f) * sqrt(squared_side1);
 
-                if (check1 < 0 && check2 > 0) { /// within +-60 degree
+                if (check1 < 0 && check2 > 0) {  /// within +-60 degree
                   is_in_laser_fov = true;
                 }
               }
@@ -973,10 +1054,11 @@ void PointMapping::Process() {
 
           size_t cube_idx = ToIndex(i, j, k);
 
-//          DLOG(INFO) << "ToIndex, i, j, k " << cube_idx << " " << i << " " << j << " " << k;
-//          int tmpi, tmpj, tmpk;
-//          FromIndex(cube_idx, tmpi, tmpj, tmpk);
-//          DLOG(INFO) << "FromIndex, i, j, k " << cube_idx << " " << tmpi << " " << tmpj << " " << tmpk;
+          //          DLOG(INFO) << "ToIndex, i, j, k " << cube_idx << " " << i
+          //          << " " << j << " " << k; int tmpi, tmpj, tmpk;
+          //          FromIndex(cube_idx, tmpi, tmpj, tmpk);
+          //          DLOG(INFO) << "FromIndex, i, j, k " << cube_idx << " " <<
+          //          tmpi << " " << tmpj << " " << tmpk;
 
           if (is_in_laser_fov) {
             laser_cloud_valid_idx_.push_back(cube_idx);
@@ -992,12 +1074,15 @@ void PointMapping::Process() {
   laser_cloud_surf_from_map_->clear();
   size_t laser_cloud_valid_size = laser_cloud_valid_idx_.size();
   for (int i = 0; i < laser_cloud_valid_size; ++i) {
-    *laser_cloud_corner_from_map_ += *laser_cloud_corner_array_[laser_cloud_valid_idx_[i]];
-    *laser_cloud_surf_from_map_ += *laser_cloud_surf_array_[laser_cloud_valid_idx_[i]];
+    *laser_cloud_corner_from_map_ +=
+        *laser_cloud_corner_array_[laser_cloud_valid_idx_[i]];
+    *laser_cloud_surf_from_map_ +=
+        *laser_cloud_surf_array_[laser_cloud_valid_idx_[i]];
   }
 
   // prepare feature stack clouds for pose optimization
-  size_t laser_cloud_corner_stack_size2 = laser_cloud_corner_stack_->points.size();
+  size_t laser_cloud_corner_stack_size2 =
+      laser_cloud_corner_stack_->points.size();
   for (int i = 0; i < laser_cloud_corner_stack_size2; ++i) {
     PointAssociateTobeMapped(laser_cloud_corner_stack_->points[i],
                              laser_cloud_corner_stack_->points[i],
@@ -1015,12 +1100,14 @@ void PointMapping::Process() {
   laser_cloud_corner_stack_downsampled_->clear();
   down_size_filter_corner_.setInputCloud(laser_cloud_corner_stack_);
   down_size_filter_corner_.filter(*laser_cloud_corner_stack_downsampled_);
-  size_t laser_cloud_corner_stack_ds_size = laser_cloud_corner_stack_downsampled_->points.size();
+  size_t laser_cloud_corner_stack_ds_size =
+      laser_cloud_corner_stack_downsampled_->points.size();
 
   laser_cloud_surf_stack_downsampled_->clear();
   down_size_filter_surf_.setInputCloud(laser_cloud_surf_stack_);
   down_size_filter_surf_.filter(*laser_cloud_surf_stack_downsampled_);
-  size_t laser_cloud_surf_stack_ds_size = laser_cloud_surf_stack_downsampled_->points.size();
+  size_t laser_cloud_surf_stack_ds_size =
+      laser_cloud_surf_stack_downsampled_->points.size();
 
   laser_cloud_corner_stack_->clear();
   laser_cloud_surf_stack_->clear();
@@ -1040,8 +1127,7 @@ void PointMapping::Process() {
 
     UpdateMapDatabase(laser_cloud_corner_stack_downsampled_,
                       laser_cloud_surf_stack_downsampled_,
-                      laser_cloud_valid_idx_,
-                      transform_tobe_mapped_,
+                      laser_cloud_valid_idx_, transform_tobe_mapped_,
                       cube_center);
 #if 0
     for (int i = 0; i < laser_cloud_corner_stack_ds_size; ++i) {
@@ -1106,22 +1192,24 @@ void PointMapping::Process() {
   }
 
   DLOG(INFO) << "mapping: " << tic_toc_.Toc() << " ms";
-
 }
 
-void PointMapping::UpdateMapDatabase(lio::PointCloudPtr margin_corner_stack_downsampled,
-                                     lio::PointCloudPtr margin_surf_stack_downsampled,
-                                     std::vector<size_t> margin_valid_idx,
-                                     const Transform &margin_transform_tobe_mapped,
-                                     const CubeCenter &margin_cube_center) {
-
+void PointMapping::UpdateMapDatabase(
+    lio::PointCloudPtr margin_corner_stack_downsampled,
+    lio::PointCloudPtr margin_surf_stack_downsampled,
+    std::vector<size_t> margin_valid_idx,
+    const Transform &margin_transform_tobe_mapped,
+    const CubeCenter &margin_cube_center) {
   PointT point_sel;
-  size_t margin_corner_stack_ds_size = margin_corner_stack_downsampled->points.size();
-  size_t margin_surf_stack_ds_size = margin_surf_stack_downsampled->points.size();
+  size_t margin_corner_stack_ds_size =
+      margin_corner_stack_downsampled->points.size();
+  size_t margin_surf_stack_ds_size =
+      margin_surf_stack_downsampled->points.size();
   size_t margin_valid_size = margin_valid_idx.size();
 
   for (int i = 0; i < margin_corner_stack_ds_size; ++i) {
-    PointAssociateToMap(margin_corner_stack_downsampled->points[i], point_sel, margin_transform_tobe_mapped);
+    PointAssociateToMap(margin_corner_stack_downsampled->points[i], point_sel,
+                        margin_transform_tobe_mapped);
 
     int cube_i = int((point_sel.x + 25.0) / 50.0) + laser_cloud_cen_length_;
     int cube_j = int((point_sel.y + 25.0) / 50.0) + laser_cloud_cen_width_;
@@ -1131,9 +1219,9 @@ void PointMapping::UpdateMapDatabase(lio::PointCloudPtr margin_corner_stack_down
     if (point_sel.y + 25.0 < 0) --cube_j;
     if (point_sel.z + 25.0 < 0) --cube_k;
 
-    if (cube_i >= 0 && cube_i < laser_cloud_length_ &&
-        cube_j >= 0 && cube_j < laser_cloud_width_ &&
-        cube_k >= 0 && cube_k < laser_cloud_height_) {
+    if (cube_i >= 0 && cube_i < laser_cloud_length_ && cube_j >= 0 &&
+        cube_j < laser_cloud_width_ && cube_k >= 0 &&
+        cube_k < laser_cloud_height_) {
       size_t cube_idx = ToIndex(cube_i, cube_j, cube_k);
       laser_cloud_corner_array_[cube_idx]->push_back(point_sel);
     }
@@ -1141,7 +1229,8 @@ void PointMapping::UpdateMapDatabase(lio::PointCloudPtr margin_corner_stack_down
 
   // store down sized surface stack points in corresponding cube clouds
   for (int i = 0; i < margin_surf_stack_ds_size; ++i) {
-    PointAssociateToMap(margin_surf_stack_downsampled->points[i], point_sel, margin_transform_tobe_mapped);
+    PointAssociateToMap(margin_surf_stack_downsampled->points[i], point_sel,
+                        margin_transform_tobe_mapped);
 
     int cube_i = int((point_sel.x + 25.0) / 50.0) + laser_cloud_cen_length_;
     int cube_j = int((point_sel.y + 25.0) / 50.0) + laser_cloud_cen_width_;
@@ -1151,9 +1240,9 @@ void PointMapping::UpdateMapDatabase(lio::PointCloudPtr margin_corner_stack_down
     if (point_sel.y + 25.0 < 0) --cube_j;
     if (point_sel.z + 25.0 < 0) --cube_k;
 
-    if (cube_i >= 0 && cube_i < laser_cloud_length_ &&
-        cube_j >= 0 && cube_j < laser_cloud_width_ &&
-        cube_k >= 0 && cube_k < laser_cloud_height_) {
+    if (cube_i >= 0 && cube_i < laser_cloud_length_ && cube_j >= 0 &&
+        cube_j < laser_cloud_width_ && cube_k >= 0 &&
+        cube_k < laser_cloud_height_) {
       size_t cube_idx = ToIndex(cube_i, cube_j, cube_k);
       laser_cloud_surf_array_[cube_idx]->push_back(point_sel);
     }
@@ -1164,15 +1253,21 @@ void PointMapping::UpdateMapDatabase(lio::PointCloudPtr margin_corner_stack_down
   for (int i = 0; i < margin_valid_size; ++i) {
     size_t index = margin_valid_idx[i];
 
-//    DLOG(INFO) << "index before: " << index;
+    //    DLOG(INFO) << "index before: " << index;
 
     int last_i, last_j, last_k;
 
     FromIndex(index, last_i, last_j, last_k);
 
-    float center_x = 50.0f * (last_i - margin_cube_center.laser_cloud_cen_length);
-    float center_y = 50.0f * (last_j - margin_cube_center.laser_cloud_cen_width);
-    float center_z = 50.0f * (last_k - margin_cube_center.laser_cloud_cen_height); // NOTE: center of the margin cube
+    float center_x =
+        50.0f * (last_i - margin_cube_center.laser_cloud_cen_length);
+    float center_y =
+        50.0f * (last_j - margin_cube_center.laser_cloud_cen_width);
+    float center_z =
+        50.0f *
+        (last_k -
+         margin_cube_center
+             .laser_cloud_cen_height);  // NOTE: center of the margin cube
 
     int cube_i = int((center_x + 25.0) / 50.0) + laser_cloud_cen_length_;
     int cube_j = int((center_y + 25.0) / 50.0) + laser_cloud_cen_width_;
@@ -1182,33 +1277,33 @@ void PointMapping::UpdateMapDatabase(lio::PointCloudPtr margin_corner_stack_down
     if (center_y + 25.0 < 0) --cube_j;
     if (center_z + 25.0 < 0) --cube_k;
 
-    if (cube_i >= 0 && cube_i < laser_cloud_length_ &&
-        cube_j >= 0 && cube_j < laser_cloud_width_ &&
-        cube_k >= 0 && cube_k < laser_cloud_height_) {
+    if (cube_i >= 0 && cube_i < laser_cloud_length_ && cube_j >= 0 &&
+        cube_j < laser_cloud_width_ && cube_k >= 0 &&
+        cube_k < laser_cloud_height_) {
+      index = ToIndex(cube_i, cube_j, cube_k);  // NOTE: update to current index
 
-      index = ToIndex(cube_i, cube_j, cube_k); // NOTE: update to current index
-
-//      DLOG(INFO) << "index after: " << index;
+      //      DLOG(INFO) << "index after: " << index;
 
       laser_cloud_corner_downsampled_array_[index]->clear();
       down_size_filter_corner_.setInputCloud(laser_cloud_corner_array_[index]);
-      down_size_filter_corner_.filter(*laser_cloud_corner_downsampled_array_[index]);
+      down_size_filter_corner_.filter(
+          *laser_cloud_corner_downsampled_array_[index]);
 
       laser_cloud_surf_downsampled_array_[index]->clear();
       down_size_filter_surf_.setInputCloud(laser_cloud_surf_array_[index]);
-      down_size_filter_surf_.filter(*laser_cloud_surf_downsampled_array_[index]);
+      down_size_filter_surf_.filter(
+          *laser_cloud_surf_downsampled_array_[index]);
 
       // swap cube clouds for next processing
-      laser_cloud_corner_array_[index].swap(laser_cloud_corner_downsampled_array_[index]);
-      laser_cloud_surf_array_[index].swap(laser_cloud_surf_downsampled_array_[index]);
+      laser_cloud_corner_array_[index].swap(
+          laser_cloud_corner_downsampled_array_[index]);
+      laser_cloud_surf_array_[index].swap(
+          laser_cloud_surf_downsampled_array_[index]);
     }
-
   }
-
 }
 
 void PointMapping::PublishResults() {
-
   if (!is_ros_setup_) {
     DLOG(WARNING) << "ros is not set up, and no results will be published";
     return;
@@ -1235,21 +1330,20 @@ void PointMapping::PublishResults() {
 
     // publish new map cloud
     PublishCloudMsg(pub_laser_cloud_surround_,
-                    *laser_cloud_surround_downsampled_,
-                    time_laser_odometry_,
+                    *laser_cloud_surround_downsampled_, time_laser_odometry_,
                     "/camera_init");
   }
-
 
   // transform full resolution input cloud to map
   size_t laser_full_cloud_size = full_cloud_->points.size();
   for (int i = 0; i < laser_full_cloud_size; i++) {
-    PointAssociateToMap(full_cloud_->points[i], full_cloud_->points[i], transform_tobe_mapped_);
+    PointAssociateToMap(full_cloud_->points[i], full_cloud_->points[i],
+                        transform_tobe_mapped_);
   }
 
   // publish transformed full resolution input cloud
-  PublishCloudMsg(pub_full_cloud_, *full_cloud_, time_laser_odometry_, "/camera_init");
-
+  PublishCloudMsg(pub_full_cloud_, *full_cloud_, time_laser_odometry_,
+                  "/camera_init");
 
   // publish odometry after mapped transformations
   geometry_msgs::Quaternion geo_quat;
@@ -1267,20 +1361,21 @@ void PointMapping::PublishResults() {
   odom_aft_mapped_.pose.pose.position.y = transform_aft_mapped_.pos.y();
   odom_aft_mapped_.pose.pose.position.z = transform_aft_mapped_.pos.z();
 
-//  odom_aft_mapped_.twist.twist.angular.x = transform_bef_mapped_.rot.x();
-//  odom_aft_mapped_.twist.twist.angular.y = transform_bef_mapped_.rot.y();
-//  odom_aft_mapped_.twist.twist.angular.z = transform_bef_mapped_.rot.z();
-//  odom_aft_mapped_.twist.twist.linear.x = transform_bef_mapped_.pos.x();
-//  odom_aft_mapped_.twist.twist.linear.y = transform_bef_mapped_.pos.y();
-//  odom_aft_mapped_.twist.twist.linear.z = transform_bef_mapped_.pos.z();
+  //  odom_aft_mapped_.twist.twist.angular.x = transform_bef_mapped_.rot.x();
+  //  odom_aft_mapped_.twist.twist.angular.y = transform_bef_mapped_.rot.y();
+  //  odom_aft_mapped_.twist.twist.angular.z = transform_bef_mapped_.rot.z();
+  //  odom_aft_mapped_.twist.twist.linear.x = transform_bef_mapped_.pos.x();
+  //  odom_aft_mapped_.twist.twist.linear.y = transform_bef_mapped_.pos.y();
+  //  odom_aft_mapped_.twist.twist.linear.z = transform_bef_mapped_.pos.z();
   pub_odom_aft_mapped_.publish(odom_aft_mapped_);
 
   aft_mapped_trans_.stamp_ = time_laser_odometry_;
-  aft_mapped_trans_.setRotation(tf::Quaternion(geo_quat.x, geo_quat.y, geo_quat.z, geo_quat.w));
+  aft_mapped_trans_.setRotation(
+      tf::Quaternion(geo_quat.x, geo_quat.y, geo_quat.z, geo_quat.w));
   aft_mapped_trans_.setOrigin(tf::Vector3(transform_aft_mapped_.pos.x(),
                                           transform_aft_mapped_.pos.y(),
                                           transform_aft_mapped_.pos.z()));
   tf_broadcaster_.sendTransform(aft_mapped_trans_);
 }
 
-} // namespace lio
+}  // namespace lio

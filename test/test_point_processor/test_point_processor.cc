@@ -1,41 +1,41 @@
 /**
-* This file is part of LIO-mapping.
-* 
-* Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
-* Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
-* The Hong Kong University of Science and Technology
-* 
-* For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
-* or <https://sites.google.com/view/lio-mapping>.
-* If you use this code, please cite the respective publications as
-* listed on the above websites.
-* 
-* LIO-mapping is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* LIO-mapping is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of LIO-mapping.
+ *
+ * Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
+ * Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
+ * The Hong Kong University of Science and Technology
+ *
+ * For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
+ * or <https://sites.google.com/view/lio-mapping>.
+ * If you use this code, please cite the respective publications as
+ * listed on the above websites.
+ *
+ * LIO-mapping is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LIO-mapping is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //
 // Created by hyye on 3/15/18.
 //
 
-#include <gtest/gtest.h>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+#include <gtest/gtest.h>
 
 #include <pcl/io/pcd_io.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
-#include <pcl_conversions/pcl_conversions.h>
 #include <tf/transform_datatypes.h>
 
 #include <geometry_msgs/Quaternion.h>
@@ -53,17 +53,14 @@ static ros::NodeHandlePtr nh_ptr;
 DEFINE_int64(sensor_type, 16, "Sensor type - number of scans (default 16)");
 
 TEST(PointProcessorTest, AngleTest) {
-
   EXPECT_DOUBLE_EQ(NormalizeRad(-3.4 - 2 * M_PI), -3.4 + 2 * M_PI);
   EXPECT_DOUBLE_EQ(NormalizeRad(3.4 + 2 * M_PI), 3.4 - 2 * M_PI);
 
   EXPECT_DOUBLE_EQ(NormalizeDeg(-190 - 360), -190 + 360);
   EXPECT_DOUBLE_EQ(NormalizeDeg(190 + 360), 190 - 360);
-
 }
 
 TEST(PointProcessorTest, SubscribeTest) {
-
   PointProcessor processor;
 
   if (FLAGS_sensor_type == 32) {
@@ -81,22 +78,23 @@ TEST(PointProcessorTest, SubscribeTest) {
     ros::spinOnce();
     r.sleep();
   }
-
-
 }
 
 TEST(PointProcessorTest, ObjectTest) {
-
   pcl::PointXYZI p;
-//  PointProcessor pp(-24.8f, 2.0f, 64);
+  //  PointProcessor pp(-24.8f, 2.0f, 64);
   PointProcessor pp;
 
   pcl::PCDReader pcd_reader;
 
   PointCloud test_pc;
-//  pcd_reader.read("/mnt/HDD/Datasets/Lidar/sz_tests/OneDrive-2018-03-07/output/1520430666.350994142.pcd", test_pc);
-  pcd_reader.read("/mnt/HDD/Datasets/Lidar/Lidar_IMU/output/1512528800.091783000.pcd", test_pc);
-//  pcd_reader.read("/home/hyye/Desktop/output/kitti_data/1317013369.682684898.pcd", test_pc);
+  //  pcd_reader.read("/mnt/HDD/Datasets/Lidar/sz_tests/OneDrive-2018-03-07/output/1520430666.350994142.pcd",
+  //  test_pc);
+  pcd_reader.read(
+      "/mnt/HDD/Datasets/Lidar/Lidar_IMU/output/1512528800.091783000.pcd",
+      test_pc);
+  //  pcd_reader.read("/home/hyye/Desktop/output/kitti_data/1317013369.682684898.pcd",
+  //  test_pc);
 
   PointCloudConstPtr test_pc_ptr(new PointCloud(test_pc));
 
@@ -120,7 +118,7 @@ TEST(PointProcessorTest, ObjectTest) {
   pc_msg.header.frame_id = "map";
   ros::Rate r(10);
   while (ros::ok()) {
-//    test_pub.publish(pc_msg);
+    //    test_pub.publish(pc_msg);
     PublishCloudMsg(test_pub, test_pc_out, ros::Time::now(), "map");
     pp.PublishResults();
     ros::spinOnce();
@@ -128,7 +126,6 @@ TEST(PointProcessorTest, ObjectTest) {
   }
 
   return;
-
 }
 
 int main(int argc, char **argv) {

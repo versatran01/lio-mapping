@@ -1,36 +1,36 @@
 /**
-* This file is part of LIO-mapping.
-* 
-* Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
-* Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
-* The Hong Kong University of Science and Technology
-* 
-* For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
-* or <https://sites.google.com/view/lio-mapping>.
-* If you use this code, please cite the respective publications as
-* listed on the above websites.
-* 
-* LIO-mapping is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* LIO-mapping is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of LIO-mapping.
+ *
+ * Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
+ * Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
+ * The Hong Kong University of Science and Technology
+ *
+ * For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
+ * or <https://sites.google.com/view/lio-mapping>.
+ * If you use this code, please cite the respective publications as
+ * listed on the above websites.
+ *
+ * LIO-mapping is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LIO-mapping is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //
 // Created by hyye on 3/25/18.
 //
 
-#include <gtest/gtest.h>
 #include <gflags/gflags.h>
 #include <glog/logging.h>
+#include <gtest/gtest.h>
 
 #include <pcl/io/pcd_io.h>
 #include <ros/ros.h>
@@ -41,8 +41,8 @@
 
 #include <geometry_msgs/Quaternion.h>
 
-#include <opencv2/opencv.hpp>
 #include <opencv2/core/eigen.hpp>
+#include <opencv2/opencv.hpp>
 
 #include "imu_processor/Estimator.h"
 #include "point_processor/PointOdometry.h"
@@ -54,10 +54,10 @@ using namespace mathutils;
 
 static ros::NodeHandlePtr nh_ptr;
 
-DEFINE_string(config_file, "/home/hyye/dev_ws/src/lio/config/test_config.yaml", "yaml config file");
+DEFINE_string(config_file, "/home/hyye/dev_ws/src/lio/config/test_config.yaml",
+              "yaml config file");
 
 TEST(MeasurementManager, ObjectTest) {
-
   EstimatorConfig estimator_config;
   string config_file = FLAGS_config_file;
   cv::FileStorage fs_settings(config_file, cv::FileStorage::READ);
@@ -92,7 +92,8 @@ TEST(MeasurementManager, ObjectTest) {
     cv::cv2eigen(cv_R, eigen_R);
     cv::cv2eigen(cv_T, eigen_T);
 
-    estimator_config.transform_lb = Transform{Eigen::Quaternionf(eigen_R.cast<float>()), eigen_T.cast<float>()};
+    estimator_config.transform_lb = Transform{
+        Eigen::Quaternionf(eigen_R.cast<float>()), eigen_T.cast<float>()};
 
     tmp_int = fs_settings["run_optimization"];
     estimator_config.run_optimization = (tmp_int > 0);
@@ -129,22 +130,22 @@ TEST(MeasurementManager, ObjectTest) {
   thread measurement_manager(&Estimator::ProcessEstimation, &estimator);
 
   if (estimator_config.pcl_viewer) {
-    boost::thread visualizer(boost::bind(&PlaneNormalVisualizer::Spin, &(estimator.normal_vis)));
+    boost::thread visualizer(
+        boost::bind(&PlaneNormalVisualizer::Spin, &(estimator.normal_vis)));
   }
 
-//  while (!estimator.normal_vis.viewer->wasStopped()) {
-//    {
-//      boost::mutex::scoped_lock lk(estimator.normal_vis.m);
-//      DLOG(INFO) << ">>>>>>> spin <<<<<<<";
-//      estimator.normal_vis.viewer->spinOnce(100);
-//    }
-//    boost::this_thread::sleep(boost::posix_time::microseconds(100000));
-//  }
+  //  while (!estimator.normal_vis.viewer->wasStopped()) {
+  //    {
+  //      boost::mutex::scoped_lock lk(estimator.normal_vis.m);
+  //      DLOG(INFO) << ">>>>>>> spin <<<<<<<";
+  //      estimator.normal_vis.viewer->spinOnce(100);
+  //    }
+  //    boost::this_thread::sleep(boost::posix_time::microseconds(100000));
+  //  }
 
   while (ros::ok()) {
     ros::spinOnce();
   }
-
 }
 
 int main(int argc, char **argv) {

@@ -1,28 +1,28 @@
 /**
-* This file is part of LIO-mapping.
-* 
-* Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
-* Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
-* The Hong Kong University of Science and Technology
-* 
-* For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
-* or <https://sites.google.com/view/lio-mapping>.
-* If you use this code, please cite the respective publications as
-* listed on the above websites.
-* 
-* LIO-mapping is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* LIO-mapping is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of LIO-mapping.
+ *
+ * Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
+ * Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
+ * The Hong Kong University of Science and Technology
+ *
+ * For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
+ * or <https://sites.google.com/view/lio-mapping>.
+ * If you use this code, please cite the respective publications as
+ * listed on the above websites.
+ *
+ * LIO-mapping is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LIO-mapping is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //
 // Created by hyye on 3/25/18.
@@ -66,8 +66,8 @@
 #include <glog/logging.h>
 
 #include <nav_msgs/Odometry.h>
-#include <tf/transform_datatypes.h>
 #include <tf/transform_broadcaster.h>
+#include <tf/transform_datatypes.h>
 
 #include <pcl/filters/voxel_grid.h>
 
@@ -77,12 +77,12 @@
 
 #include <map>
 
+#include "3rdparty/sophus/se3.hpp"
+#include "utils/TicToc.h"
 #include "utils/Twist.h"
 #include "utils/common_ros.h"
-#include "utils/TicToc.h"
-#include "utils/math_utils.h"
 #include "utils/geometry_utils.h"
-#include "3rdparty/sophus/se3.hpp"
+#include "utils/math_utils.h"
 
 namespace lio {
 
@@ -101,27 +101,31 @@ struct CubeCenter {
   int laser_cloud_cen_width;
   int laser_cloud_cen_height;
 
-  friend std::ostream &operator<<(std::ostream &os, const CubeCenter &cube_center) {
-    os << cube_center.laser_cloud_cen_length << " " << cube_center.laser_cloud_cen_width << " "
+  friend std::ostream &operator<<(std::ostream &os,
+                                  const CubeCenter &cube_center) {
+    os << cube_center.laser_cloud_cen_length << " "
+       << cube_center.laser_cloud_cen_width << " "
        << cube_center.laser_cloud_cen_height;
     return os;
   }
 };
 
 class PointMapping {
-
  public:
-  PointMapping(float scan_period = 0.1,
-               size_t num_max_iterations = 10);
+  PointMapping(float scan_period = 0.1, size_t num_max_iterations = 10);
 
   void SetupRos(ros::NodeHandle &nh, bool enable_sub = true);
   void Reset();
 
-  void LaserCloudCornerLastHandler(const sensor_msgs::PointCloud2ConstPtr &corner_points_sharp_msg);
-  void LaserCloudSurfLastHandler(const sensor_msgs::PointCloud2ConstPtr &corner_points_less_sharp_msg);
-  void LaserFullCloudHandler(const sensor_msgs::PointCloud2ConstPtr &full_cloud_msg);
+  void LaserCloudCornerLastHandler(
+      const sensor_msgs::PointCloud2ConstPtr &corner_points_sharp_msg);
+  void LaserCloudSurfLastHandler(
+      const sensor_msgs::PointCloud2ConstPtr &corner_points_less_sharp_msg);
+  void LaserFullCloudHandler(
+      const sensor_msgs::PointCloud2ConstPtr &full_cloud_msg);
   void LaserOdometryHandler(const nav_msgs::Odometry::ConstPtr &laser_odom_msg);
-  void CompactDataHandler(const sensor_msgs::PointCloud2ConstPtr &compact_data_msg);
+  void CompactDataHandler(
+      const sensor_msgs::PointCloud2ConstPtr &compact_data_msg);
 
   void SetInitFlag(bool set_init);
 
@@ -146,9 +150,9 @@ class PointMapping {
   void Process();
 
  protected:
-
   size_t ToIndex(int i, int j, int k) const {
-    return i + laser_cloud_length_ * j + laser_cloud_length_ * laser_cloud_width_ * k;
+    return i + laser_cloud_length_ * j +
+           laser_cloud_length_ * laser_cloud_width_ * k;
   }
 
   void FromIndex(const size_t &index, int &i, int &j, int &k) {
@@ -162,7 +166,7 @@ class PointMapping {
 
   float scan_period_;
   float time_factor_;
-  long frame_count_;        ///< number of processed frames
+  long frame_count_;  ///< number of processed frames
   long map_frame_count_;
   const int num_stack_frames_;
   const int num_map_frames_;
@@ -181,9 +185,9 @@ class PointMapping {
   const size_t laser_cloud_height_;
   const size_t laser_cloud_num_;
 
-  PointCloudPtr laser_cloud_corner_last_;   ///< last corner points cloud
-  PointCloudPtr laser_cloud_surf_last_;     ///< last surface points cloud
-  PointCloudPtr full_cloud_;      ///< last full resolution cloud
+  PointCloudPtr laser_cloud_corner_last_;  ///< last corner points cloud
+  PointCloudPtr laser_cloud_surf_last_;    ///< last surface points cloud
+  PointCloudPtr full_cloud_;               ///< last full resolution cloud
 
   PointCloudPtr laser_cloud_corner_stack_;
   PointCloudPtr laser_cloud_surf_stack_;
@@ -191,50 +195,65 @@ class PointMapping {
   PointCloudPtr laser_cloud_surf_stack_downsampled_;    ///< down sampled
 
   PointCloudPtr laser_cloud_surround_;
-  PointCloudPtr laser_cloud_surround_downsampled_;     ///< down sampled
+  PointCloudPtr laser_cloud_surround_downsampled_;  ///< down sampled
   PointCloudPtr laser_cloud_corner_from_map_;
   PointCloudPtr laser_cloud_surf_from_map_;
 
   std::vector<PointCloudPtr> laser_cloud_corner_array_;
   std::vector<PointCloudPtr> laser_cloud_surf_array_;
-  std::vector<PointCloudPtr> laser_cloud_corner_downsampled_array_;  ///< down sampled
-  std::vector<PointCloudPtr> laser_cloud_surf_downsampled_array_;    ///< down sampled
+  std::vector<PointCloudPtr>
+      laser_cloud_corner_downsampled_array_;  ///< down sampled
+  std::vector<PointCloudPtr>
+      laser_cloud_surf_downsampled_array_;  ///< down sampled
 
   std::vector<size_t> laser_cloud_valid_idx_;
   std::vector<size_t> laser_cloud_surround_idx_;
 
-  ros::Time time_laser_cloud_corner_last_;   ///< time of current last corner cloud
-  ros::Time time_laser_cloud_surf_last_;     ///< time of current last surface cloud
-  ros::Time time_laser_full_cloud_;      ///< time of current full resolution cloud
-  ros::Time time_laser_odometry_;          ///< time of current laser odometry
+  ros::Time
+      time_laser_cloud_corner_last_;  ///< time of current last corner cloud
+  ros::Time
+      time_laser_cloud_surf_last_;   ///< time of current last surface cloud
+  ros::Time time_laser_full_cloud_;  ///< time of current full resolution cloud
+  ros::Time time_laser_odometry_;    ///< time of current laser odometry
 
-  bool new_laser_cloud_corner_last_;  ///< flag if a new last corner cloud has been received
-  bool new_laser_cloud_surf_last_;    ///< flag if a new last surface cloud has been received
-  bool new_laser_full_cloud_;     ///< flag if a new full resolution cloud has been received
-  bool new_laser_odometry_;         ///< flag if a new laser odometry has been received
+  bool new_laser_cloud_corner_last_;  ///< flag if a new last corner cloud has
+                                      ///< been received
+  bool new_laser_cloud_surf_last_;    ///< flag if a new last surface cloud has
+                                      ///< been received
+  bool new_laser_full_cloud_;  ///< flag if a new full resolution cloud has been
+                               ///< received
+  bool new_laser_odometry_;  ///< flag if a new laser odometry has been received
 
   Transform transform_sum_;
   Transform transform_tobe_mapped_;
   Transform transform_bef_mapped_;
   Transform transform_aft_mapped_;
 
-  pcl::VoxelGrid<pcl::PointXYZI> down_size_filter_corner_;   ///< voxel filter for down sizing corner clouds
-  pcl::VoxelGrid<pcl::PointXYZI> down_size_filter_surf_;     ///< voxel filter for down sizing surface clouds
-  pcl::VoxelGrid<pcl::PointXYZI> down_size_filter_map_;      ///< voxel filter for down sizing accumulated map
+  pcl::VoxelGrid<pcl::PointXYZI>
+      down_size_filter_corner_;  ///< voxel filter for down sizing corner clouds
+  pcl::VoxelGrid<pcl::PointXYZI>
+      down_size_filter_surf_;  ///< voxel filter for down sizing surface clouds
+  pcl::VoxelGrid<pcl::PointXYZI>
+      down_size_filter_map_;  ///< voxel filter for down sizing accumulated map
 
-  nav_msgs::Odometry odom_aft_mapped_;      ///< mapping odometry message
-  tf::StampedTransform aft_mapped_trans_;   ///< mapping odometry transformation
+  nav_msgs::Odometry odom_aft_mapped_;     ///< mapping odometry message
+  tf::StampedTransform aft_mapped_trans_;  ///< mapping odometry transformation
 
-  ros::Publisher pub_laser_cloud_surround_;    ///< map cloud message publisher
-  ros::Publisher pub_full_cloud_;     ///< current full resolution cloud message publisher
-  ros::Publisher pub_odom_aft_mapped_;         ///< mapping odometry publisher
-  tf::TransformBroadcaster tf_broadcaster_;  ///< mapping odometry transform broadcaster
+  ros::Publisher pub_laser_cloud_surround_;  ///< map cloud message publisher
+  ros::Publisher
+      pub_full_cloud_;  ///< current full resolution cloud message publisher
+  ros::Publisher pub_odom_aft_mapped_;  ///< mapping odometry publisher
+  tf::TransformBroadcaster
+      tf_broadcaster_;  ///< mapping odometry transform broadcaster
 
-  ros::Subscriber sub_laser_cloud_corner_last_;   ///< last corner cloud message subscriber
-  ros::Subscriber sub_laser_cloud_surf_last_;     ///< last surface cloud message subscriber
-  ros::Subscriber sub_laser_full_cloud_;      ///< full resolution cloud message subscriber
-  ros::Subscriber sub_laser_odometry_;          ///< laser odometry message subscriber
-  ros::Subscriber sub_compact_data_;          ///< laser odometry message subscriber
+  ros::Subscriber
+      sub_laser_cloud_corner_last_;  ///< last corner cloud message subscriber
+  ros::Subscriber
+      sub_laser_cloud_surf_last_;  ///< last surface cloud message subscriber
+  ros::Subscriber
+      sub_laser_full_cloud_;  ///< full resolution cloud message subscriber
+  ros::Subscriber sub_laser_odometry_;  ///< laser odometry message subscriber
+  ros::Subscriber sub_compact_data_;    ///< laser odometry message subscriber
 
   bool is_ros_setup_ = false;
   bool compact_data_ = false;
@@ -247,9 +266,8 @@ class PointMapping {
   PointT point_on_z_axis_;
 
   Eigen::Matrix<float, 6, 6> matP_;
-
 };
 
-}
+}  // namespace lio
 
-#endif //LIO_POINTMAPPING_H_
+#endif  // LIO_POINTMAPPING_H_

@@ -5,7 +5,7 @@
   <arg name="rviz" default="true" />
 
   <node pkg="lio" type="lio_processor_node" name="lio_processor" output="screen">
-  	<param name="sensor_type" type="int" value="64" />
+    <param name="sensor_type" type="int" value="64" />
   </node>
   <node pkg="lio" type="lio_odometry_node" name="lio_odometry" output="screen">
     <param name="no_deskew" type="bool" value="true" />

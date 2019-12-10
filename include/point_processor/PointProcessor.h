@@ -1,28 +1,28 @@
 /**
-* This file is part of LIO-mapping.
-* 
-* Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
-* Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
-* The Hong Kong University of Science and Technology
-* 
-* For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
-* or <https://sites.google.com/view/lio-mapping>.
-* If you use this code, please cite the respective publications as
-* listed on the above websites.
-* 
-* LIO-mapping is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* LIO-mapping is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of LIO-mapping.
+ *
+ * Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
+ * Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
+ * The Hong Kong University of Science and Technology
+ *
+ * For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
+ * or <https://sites.google.com/view/lio-mapping>.
+ * If you use this code, please cite the respective publications as
+ * listed on the above websites.
+ *
+ * LIO-mapping is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LIO-mapping is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //
 // Created by hyye on 3/14/18.
@@ -69,8 +69,8 @@
 
 #include <pcl/features/normal_3d.h>
 
-#include "utils/common_ros.h"
 #include "utils/TicToc.h"
+#include "utils/common_ros.h"
 #include "utils/math_utils.h"
 
 #include "utils/CircularBuffer.h"
@@ -120,26 +120,26 @@ struct PointProcessorConfig {
 };
 
 class PointProcessor {
-
  public:
-
   PointProcessor();
-  PointProcessor(float lower_bound, float upper_bound, int num_rings, bool uneven = false);
+  PointProcessor(float lower_bound, float upper_bound, int num_rings,
+                 bool uneven = false);
 
   // WARNING: is it useful to separate Process and SetInputCloud?
   // void Process(const PointCloudConstPtr &cloud_in, PointCloud &cloud_out);
   void Process();
 
-  void PointCloudHandler(const sensor_msgs::PointCloud2ConstPtr &raw_points_msg);
+  void PointCloudHandler(
+      const sensor_msgs::PointCloud2ConstPtr &raw_points_msg);
 
-  void SetupConfig(PointProcessorConfig config) {
-    config_ = config;
-  }
+  void SetupConfig(PointProcessorConfig config) { config_ = config; }
 
   void SetupRos(ros::NodeHandle &nh);
 
-  void SetInputCloud(const PointCloudConstPtr &cloud_in, ros::Time time_in = ros::Time::now());
-  void SetInputCloud(const pcl::PointCloud<PointIR>::Ptr &cloud_in, ros::Time time_in = ros::Time::now());
+  void SetInputCloud(const PointCloudConstPtr &cloud_in,
+                     ros::Time time_in = ros::Time::now());
+  void SetInputCloud(const pcl::PointCloud<PointIR>::Ptr &cloud_in,
+                     ros::Time time_in = ros::Time::now());
 
   void PointToRing();
   void PointToRing(const PointCloudConstPtr &cloud_in,
@@ -172,7 +172,6 @@ class PointProcessor {
   vector<IndexRange> scan_ranges;
 
  protected:
-
   ros::Time sweep_start_;
   ros::Time scan_time_;
 
@@ -195,25 +194,31 @@ class PointProcessor {
 
   // the following will be assigened or resized
   vector<int> scan_ring_mask_;
-  vector<pair<float, size_t> > curvature_idx_pairs_; // in subregion
-  vector<PointLabel> subregion_labels_;     ///< point label buffer
+  vector<pair<float, size_t> > curvature_idx_pairs_;  // in subregion
+  vector<PointLabel> subregion_labels_;               ///< point label buffer
 
-//  void PrepareRing(const size_t idx_ring);
-//  void PrepareSubregion(const size_t idx_ring, const size_t idx_start, const size_t idx_end);
-//  void MaskPickedInRing(const size_t idx_ring, const size_t in_scan_idx);
+  //  void PrepareRing(const size_t idx_ring);
+  //  void PrepareSubregion(const size_t idx_ring, const size_t idx_start, const
+  //  size_t idx_end); void MaskPickedInRing(const size_t idx_ring, const size_t
+  //  in_scan_idx);
 
   void Reset(const ros::Time &scan_time, const bool &is_new_sweep = true);
   void PrepareRing(const PointCloud &scan);
-  void PrepareSubregion(const PointCloud &scan, const size_t idx_start, const size_t idx_end);
+  void PrepareSubregion(const PointCloud &scan, const size_t idx_start,
+                        const size_t idx_end);
   void MaskPickedInRing(const PointCloud &scan, const size_t in_scan_idx);
 
-  ros::Subscriber sub_raw_points_;   ///< input cloud message subscriber
+  ros::Subscriber sub_raw_points_;  ///< input cloud message subscriber
 
-  ros::Publisher pub_full_cloud_;              ///< full resolution cloud message publisher
-  ros::Publisher pub_corner_points_sharp_;       ///< sharp corner cloud message publisher
-  ros::Publisher pub_corner_points_less_sharp_;   ///< less sharp corner cloud message publisher
-  ros::Publisher pub_surf_points_flat_;          ///< flat surface cloud message publisher
-  ros::Publisher pub_surf_points_less_flat_;      ///< less flat surface cloud message publisher
+  ros::Publisher pub_full_cloud_;  ///< full resolution cloud message publisher
+  ros::Publisher
+      pub_corner_points_sharp_;  ///< sharp corner cloud message publisher
+  ros::Publisher pub_corner_points_less_sharp_;  ///< less sharp corner cloud
+                                                 ///< message publisher
+  ros::Publisher
+      pub_surf_points_flat_;  ///< flat surface cloud message publisher
+  ros::Publisher pub_surf_points_less_flat_;  ///< less flat surface cloud
+                                              ///< message publisher
 
   bool is_ros_setup_ = false;
 
@@ -225,9 +230,8 @@ class PointProcessor {
   CircularBuffer<float> start_ori_buf2_{10};
   ros::Publisher pub_start_ori_;
   ros::Publisher pub_start_ori_inferred_;
-
 };
 
-} // namespace lio
+}  // namespace lio
 
-#endif //LIO_POINTPROCESSOR_H_
+#endif  // LIO_POINTPROCESSOR_H_

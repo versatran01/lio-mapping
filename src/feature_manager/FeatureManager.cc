@@ -1,28 +1,28 @@
 /**
-* This file is part of LIO-mapping.
-* 
-* Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
-* Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
-* The Hong Kong University of Science and Technology
-* 
-* For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
-* or <https://sites.google.com/view/lio-mapping>.
-* If you use this code, please cite the respective publications as
-* listed on the above websites.
-* 
-* LIO-mapping is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* 
-* LIO-mapping is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* 
-* You should have received a copy of the GNU General Public License
-* along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of LIO-mapping.
+ *
+ * Copyright (C) 2019 Haoyang Ye <hy.ye at connect dot ust dot hk>,
+ * Robotics and Multiperception Lab (RAM-LAB <https://ram-lab.com>),
+ * The Hong Kong University of Science and Technology
+ *
+ * For more information please see <https://ram-lab.com/file/hyye/lio-mapping>
+ * or <https://sites.google.com/view/lio-mapping>.
+ * If you use this code, please cite the respective publications as
+ * listed on the above websites.
+ *
+ * LIO-mapping is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LIO-mapping is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LIO-mapping.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 //
 // Created by hyye on 5/9/18.
@@ -34,18 +34,19 @@ namespace lio {
 
 void PointNormalFeature::UpdateCovariance(const Eigen::Vector3d &normal3d_in) {
   ;
-  Eigen::Matrix3d R = Eigen::Quaterniond::FromTwoVectors(e1, normal3d_in).toRotationMatrix();
+  Eigen::Matrix3d R =
+      Eigen::Quaterniond::FromTwoVectors(e1, normal3d_in).toRotationMatrix();
   covariance = R * diag_covariance * R.transpose();
 }
 
-FeatureManager::FeatureManager() {
+FeatureManager::FeatureManager() {}
 
-}
-
-//void FeatureManager::CalculateFeatures(const pcl::KdTreeFLANN<PointT>::Ptr &kdtree_surf_from_map,
-//                                       const PointCloudPtr &local_surf_points_filtered_ptr,
-//                                       const PointCloudPtr &surf_stack,
-//                                       const Transform &local_transform,
+// void FeatureManager::CalculateFeatures(const pcl::KdTreeFLANN<PointT>::Ptr
+// &kdtree_surf_from_map,
+//                                       const PointCloudPtr
+//                                       &local_surf_points_filtered_ptr, const
+//                                       PointCloudPtr &surf_stack, const
+//                                       Transform &local_transform,
 //                                       vector<PointPlaneFeature> &features) {
 //
 //  PointT point_sel, point_ori, point_proj, coeff1, coeff2;
@@ -79,16 +80,21 @@ FeatureManager::FeatureManager() {
 //
 //  for (int i = 0; i < surf_points_size; i++) {
 //    point_ori = origin_surf_points->points[i];
-//    PointMapping::PointAssociateToMap(point_ori, point_sel, transform_to_local);
+//    PointMapping::PointAssociateToMap(point_ori, point_sel,
+//    transform_to_local);
 //
 //    int num_neighbors = 5;
-//    kdtree_surf_from_map->nearestKSearch(point_sel, num_neighbors, point_search_idx, point_search_sq_dis);
+//    kdtree_surf_from_map->nearestKSearch(point_sel, num_neighbors,
+//    point_search_idx, point_search_sq_dis);
 //
 //    if (point_search_sq_dis[num_neighbors - 1] < min_match_sq_dis_) {
 //      for (int j = 0; j < num_neighbors; j++) {
-//        mat_A0(j, 0) = local_surf_points_filtered_ptr->points[point_search_idx[j]].x;
-//        mat_A0(j, 1) = local_surf_points_filtered_ptr->points[point_search_idx[j]].y;
-//        mat_A0(j, 2) = local_surf_points_filtered_ptr->points[point_search_idx[j]].z;
+//        mat_A0(j, 0) =
+//        local_surf_points_filtered_ptr->points[point_search_idx[j]].x;
+//        mat_A0(j, 1) =
+//        local_surf_points_filtered_ptr->points[point_search_idx[j]].y;
+//        mat_A0(j, 2) =
+//        local_surf_points_filtered_ptr->points[point_search_idx[j]].z;
 //      }
 //      mat_X0 = mat_A0.colPivHouseholderQr().solve(mat_B0);
 //
@@ -107,9 +113,12 @@ FeatureManager::FeatureManager() {
 //
 //      bool planeValid = true;
 //      for (int j = 0; j < num_neighbors; j++) {
-//        if (fabs(pa * local_surf_points_filtered_ptr->points[point_search_idx[j]].x +
-//            pb * local_surf_points_filtered_ptr->points[point_search_idx[j]].y +
-//            pc * local_surf_points_filtered_ptr->points[point_search_idx[j]].z + pd) > min_plane_dis_) {
+//        if (fabs(pa *
+//        local_surf_points_filtered_ptr->points[point_search_idx[j]].x +
+//            pb * local_surf_points_filtered_ptr->points[point_search_idx[j]].y
+//            + pc *
+//            local_surf_points_filtered_ptr->points[point_search_idx[j]].z +
+//            pd) > min_plane_dis_) {
 //          planeValid = false;
 //          break;
 //        }
@@ -117,7 +126,8 @@ FeatureManager::FeatureManager() {
 //
 //      if (planeValid) {
 //
-//        float pd2 = pa * point_sel.x + pb * point_sel.y + pc * point_sel.z + pd;
+//        float pd2 = pa * point_sel.x + pb * point_sel.y + pc * point_sel.z +
+//        pd;
 //
 //        float s = 1 - 0.9f * fabs(pd2) / sqrt(CalcPointDistance(point_sel));
 //
@@ -133,7 +143,8 @@ FeatureManager::FeatureManager() {
 //        point_on_z_axis.x = 0.0;
 //        point_on_z_axis.y = 0.0;
 //        point_on_z_axis.z = 10.0;
-//        PointMapping::PointAssociateToMap(point_on_z_axis, point_on_z_axis, transform_to_local);
+//        PointMapping::PointAssociateToMap(point_on_z_axis, point_on_z_axis,
+//        transform_to_local);
 //
 //        transform_pos.x = transform_to_local.pos.x();
 //        transform_pos.y = transform_to_local.pos.y();
@@ -154,9 +165,9 @@ FeatureManager::FeatureManager() {
 //        if (s > 0.1 && is_in_laser_fov) {
 //          PointPlaneFeature feature;
 //          feature.score = s;
-//          feature.point = Eigen::Vector3d{point_ori.x, point_ori.y, point_ori.z};
-//          feature.coeffs = Eigen::Vector4d{coeff1.x, coeff1.y, coeff1.z, coeff1.intensity};
-//          features.push_back(feature);
+//          feature.point = Eigen::Vector3d{point_ori.x, point_ori.y,
+//          point_ori.z}; feature.coeffs = Eigen::Vector4d{coeff1.x, coeff1.y,
+//          coeff1.z, coeff1.intensity}; features.push_back(feature);
 //        }
 //      }
 //    }
@@ -164,16 +175,19 @@ FeatureManager::FeatureManager() {
 //
 //}
 //
-//void FeatureManager::CalculateLaserOdom(const pcl::KdTreeFLANN<PointT>::Ptr &kdtree_surf_from_map,
-//                                        const PointCloudPtr &local_surf_points_filtered_ptr,
-//                                        const PointCloudPtr &surf_stack,
-//                                        const Transform &local_transform,
+// void FeatureManager::CalculateLaserOdom(const pcl::KdTreeFLANN<PointT>::Ptr
+// &kdtree_surf_from_map,
+//                                        const PointCloudPtr
+//                                        &local_surf_points_filtered_ptr, const
+//                                        PointCloudPtr &surf_stack, const
+//                                        Transform &local_transform,
 //                                        vector<PointPlaneFeature> &features) {
 //// TODO: max_iter, delta_r, delta_t
 //  bool is_degenerate = false;
 //  for (size_t iter_count = 0; iter_count < 10; ++iter_count) {
 //
-//    CalculateFeatures(kdtree_surf_from_map, local_surf_points_filtered_ptr, surf_stack,
+//    CalculateFeatures(kdtree_surf_from_map, local_surf_points_filtered_ptr,
+//    surf_stack,
 //                      local_transform, features);
 //
 //    size_t laser_cloud_sel_size = features.size();
@@ -201,11 +215,13 @@ FeatureManager::FeatureManager() {
 //      Eigen::Vector3f p(point_ori.x, point_ori.y, point_ori.z);
 //      Eigen::Vector3f w(coeff.x, coeff.y, coeff.z);
 //
-////      Eigen::Vector3f J_r = w.transpose() * RotationVectorJacobian(R_SO3, p);
-//      Eigen::Vector3f J_r = -w.transpose() * (local_transform.rot * SkewSymmetric(p));
-//      Eigen::Vector3f J_t = w.transpose();
+////      Eigen::Vector3f J_r = w.transpose() * RotationVectorJacobian(R_SO3,
+///p);
+//      Eigen::Vector3f J_r = -w.transpose() * (local_transform.rot *
+//      SkewSymmetric(p)); Eigen::Vector3f J_t = w.transpose();
 //
-//      float d2 = w.transpose() * (local_transform.rot * p + local_transform.pos) + coeff.intensity;
+//      float d2 = w.transpose() * (local_transform.rot * p +
+//      local_transform.pos) + coeff.intensity;
 //
 //      mat_A(i, 0) = J_r.x();
 //      mat_A(i, 1) = J_r.y();
@@ -226,9 +242,9 @@ FeatureManager::FeatureManager() {
 //      Eigen::Matrix<float, 6, 6> mat_V;
 //      Eigen::Matrix<float, 6, 6> mat_V2;
 //
-//      Eigen::SelfAdjointEigenSolver<Eigen::Matrix<float, 6, 6>> esolver(matAtA);
-//      mat_E = esolver.eigenvalues().real();
-//      mat_V = esolver.eigenvectors().real();
+//      Eigen::SelfAdjointEigenSolver<Eigen::Matrix<float, 6, 6>>
+//      esolver(matAtA); mat_E = esolver.eigenvalues().real(); mat_V =
+//      esolver.eigenvectors().real();
 //
 //      mat_V2 = mat_V;
 //
@@ -258,14 +274,17 @@ FeatureManager::FeatureManager() {
 //    local_transform.pos.y() += mat_X(4, 0);
 //    local_transform.pos.z() += mat_X(5, 0);
 //
-//    local_transform.rot = local_transform.rot * DeltaQ(Eigen::Vector3f(mat_X(0, 0), mat_X(1, 0), mat_X(2, 0)));
+//    local_transform.rot = local_transform.rot *
+//    DeltaQ(Eigen::Vector3f(mat_X(0, 0), mat_X(1, 0), mat_X(2, 0)));
 //
 //    if (!isfinite(local_transform.pos.x())) local_transform.pos.x() = 0.0;
 //    if (!isfinite(local_transform.pos.y())) local_transform.pos.y() = 0.0;
 //    if (!isfinite(local_transform.pos.z())) local_transform.pos.z() = 0.0;
 //
-//    float delta_r = RadToDeg(R_SO3.unit_quaternion().angularDistance(local_transform.rot));
-//    float delta_t = sqrt(pow(mat_X(3, 0) * 100, 2) + pow(mat_X(4, 0) * 100, 2) + pow(mat_X(5, 0) * 100, 2));
+//    float delta_r =
+//    RadToDeg(R_SO3.unit_quaternion().angularDistance(local_transform.rot));
+//    float delta_t = sqrt(pow(mat_X(3, 0) * 100, 2) + pow(mat_X(4, 0) * 100, 2)
+//    + pow(mat_X(5, 0) * 100, 2));
 //
 //    if (delta_r < 0.05 && delta_t < 0.1) {
 //      DLOG(INFO) << "CalculateLaserOdom iter_count: " << iter_count;
@@ -274,11 +293,15 @@ FeatureManager::FeatureManager() {
 //  }
 //}
 //
-//void FeatureManager::CalculateFeatures(const pcl::KdTreeFLANN<PointT>::Ptr &kdtree_surf_from_map,
-//                                       const PointCloudPtr &local_surf_points_filtered_ptr,
-//                                       const PointCloudPtr &surf_stack,
-//                                       const pcl::KdTreeFLANN<PointT>::Ptr &kdtree_corner_from_map,
-//                                       const PointCloudPtr &local_corner_points_filtered_ptr,
+// void FeatureManager::CalculateFeatures(const pcl::KdTreeFLANN<PointT>::Ptr
+// &kdtree_surf_from_map,
+//                                       const PointCloudPtr
+//                                       &local_surf_points_filtered_ptr, const
+//                                       PointCloudPtr &surf_stack, const
+//                                       pcl::KdTreeFLANN<PointT>::Ptr
+//                                       &kdtree_corner_from_map, const
+//                                       PointCloudPtr
+//                                       &local_corner_points_filtered_ptr,
 //                                       const PointCloudPtr &corner_stack,
 //                                       const Transform &local_transform,
 //                                       vector<PointPlaneFeature> &features) {
@@ -316,16 +339,21 @@ FeatureManager::FeatureManager() {
 //
 //  for (int i = 0; i < surf_points_size; i++) {
 //    point_ori = origin_surf_points->points[i];
-//    PointMapping::PointAssociateToMap(point_ori, point_sel, transform_to_local);
+//    PointMapping::PointAssociateToMap(point_ori, point_sel,
+//    transform_to_local);
 //
 //    int num_neighbors = 5;
-//    kdtree_surf_from_map->nearestKSearch(point_sel, num_neighbors, point_search_idx, point_search_sq_dis);
+//    kdtree_surf_from_map->nearestKSearch(point_sel, num_neighbors,
+//    point_search_idx, point_search_sq_dis);
 //
 //    if (point_search_sq_dis[num_neighbors - 1] < min_match_sq_dis_) {
 //      for (int j = 0; j < num_neighbors; j++) {
-//        mat_A0(j, 0) = local_surf_points_filtered_ptr->points[point_search_idx[j]].x;
-//        mat_A0(j, 1) = local_surf_points_filtered_ptr->points[point_search_idx[j]].y;
-//        mat_A0(j, 2) = local_surf_points_filtered_ptr->points[point_search_idx[j]].z;
+//        mat_A0(j, 0) =
+//        local_surf_points_filtered_ptr->points[point_search_idx[j]].x;
+//        mat_A0(j, 1) =
+//        local_surf_points_filtered_ptr->points[point_search_idx[j]].y;
+//        mat_A0(j, 2) =
+//        local_surf_points_filtered_ptr->points[point_search_idx[j]].z;
 //      }
 //      mat_X0 = mat_A0.colPivHouseholderQr().solve(mat_B0);
 //
@@ -344,9 +372,12 @@ FeatureManager::FeatureManager() {
 //
 //      bool planeValid = true;
 //      for (int j = 0; j < num_neighbors; j++) {
-//        if (fabs(pa * local_surf_points_filtered_ptr->points[point_search_idx[j]].x +
-//            pb * local_surf_points_filtered_ptr->points[point_search_idx[j]].y +
-//            pc * local_surf_points_filtered_ptr->points[point_search_idx[j]].z + pd) > min_plane_dis_) {
+//        if (fabs(pa *
+//        local_surf_points_filtered_ptr->points[point_search_idx[j]].x +
+//            pb * local_surf_points_filtered_ptr->points[point_search_idx[j]].y
+//            + pc *
+//            local_surf_points_filtered_ptr->points[point_search_idx[j]].z +
+//            pd) > min_plane_dis_) {
 //          planeValid = false;
 //          break;
 //        }
@@ -354,7 +385,8 @@ FeatureManager::FeatureManager() {
 //
 //      if (planeValid) {
 //
-//        float pd2 = pa * point_sel.x + pb * point_sel.y + pc * point_sel.z + pd;
+//        float pd2 = pa * point_sel.x + pb * point_sel.y + pc * point_sel.z +
+//        pd;
 //
 //        float s = 1 - 0.9f * fabs(pd2) / sqrt(CalcPointDistance(point_sel));
 //
@@ -370,7 +402,8 @@ FeatureManager::FeatureManager() {
 //        point_on_z_axis.x = 0.0;
 //        point_on_z_axis.y = 0.0;
 //        point_on_z_axis.z = 10.0;
-//        PointMapping::PointAssociateToMap(point_on_z_axis, point_on_z_axis, transform_to_local);
+//        PointMapping::PointAssociateToMap(point_on_z_axis, point_on_z_axis,
+//        transform_to_local);
 //
 //        transform_pos.x = transform_to_local.pos.x();
 //        transform_pos.y = transform_to_local.pos.y();
@@ -391,9 +424,9 @@ FeatureManager::FeatureManager() {
 //        if (s > 0.1 && is_in_laser_fov) {
 //          PointPlaneFeature feature;
 //          feature.score = s;
-//          feature.point = Eigen::Vector3d{point_ori.x, point_ori.y, point_ori.z};
-//          feature.coeffs = Eigen::Vector4d{coeff1.x, coeff1.y, coeff1.z, coeff1.intensity};
-//          features.push_back(feature);
+//          feature.point = Eigen::Vector3d{point_ori.x, point_ori.y,
+//          point_ori.z}; feature.coeffs = Eigen::Vector4d{coeff1.x, coeff1.y,
+//          coeff1.z, coeff1.intensity}; features.push_back(feature);
 //        }
 //      }
 //    }
@@ -403,16 +436,17 @@ FeatureManager::FeatureManager() {
 //  for (int i = 0; i < corner_points_size; i++) {
 //    point_ori = origin_corner_points->points[i];
 //    PointAssociateToMap(point_ori, point_sel, transform_to_local);
-//    kdtree_corner_from_map->nearestKSearch(point_sel, 5, point_search_idx, point_search_sq_dis);
+//    kdtree_corner_from_map->nearestKSearch(point_sel, 5, point_search_idx,
+//    point_search_sq_dis);
 //
 //    if (point_search_sq_dis[4] < min_match_sq_dis_) {
 //      Eigen::Vector3f vc(0, 0, 0);
 //
 //      for (int j = 0; j < 5; j++) {
-//        const PointT &point_sel_tmp = local_corner_points_filtered_ptr->points[point_search_idx[j]];
-//        vc.x() += point_sel_tmp.x;
-//        vc.y() += point_sel_tmp.y;
-//        vc.z() += point_sel_tmp.z;
+//        const PointT &point_sel_tmp =
+//        local_corner_points_filtered_ptr->points[point_search_idx[j]]; vc.x()
+//        += point_sel_tmp.x; vc.y() += point_sel_tmp.y; vc.z() +=
+//        point_sel_tmp.z;
 //      }
 //      vc /= 5.0;
 //
@@ -420,7 +454,8 @@ FeatureManager::FeatureManager() {
 //      mat_a.setZero();
 //
 //      for (int j = 0; j < 5; j++) {
-//        const PointT &point_sel_tmp = local_corner_points_filtered_ptr->points[point_search_idx[j]];
+//        const PointT &point_sel_tmp =
+//        local_corner_points_filtered_ptr->points[point_search_idx[j]];
 //        Eigen::Vector3f a;
 //        a.x() = point_sel_tmp.x - vc.x();
 //        a.y() = point_sel_tmp.y - vc.y();
@@ -457,7 +492,8 @@ FeatureManager::FeatureManager() {
 //
 //        Eigen::Vector3f a012_vec = (X0 - X1).cross(X0 - X2);
 //
-//        Eigen::Vector3f normal_to_point = ((X1 - X2).cross(a012_vec)).normalized();
+//        Eigen::Vector3f normal_to_point = ((X1 -
+//        X2).cross(a012_vec)).normalized();
 //
 //        Eigen::Vector3f normal_cross_point = (X1 - X2).cross(normal_to_point);
 //
@@ -476,9 +512,11 @@ FeatureManager::FeatureManager() {
 //        point_proj.y -= lb * ld2;
 //        point_proj.z -= lc * ld2;
 //
-//        float ld_p1 = -(normal_to_point.x() * point_proj.x + normal_to_point.y() * point_proj.y
+//        float ld_p1 = -(normal_to_point.x() * point_proj.x +
+//        normal_to_point.y() * point_proj.y
 //            + normal_to_point.z() * point_proj.z);
-//        float ld_p2 = -(normal_cross_point.x() * point_proj.x + normal_cross_point.y() * point_proj.y
+//        float ld_p2 = -(normal_cross_point.x() * point_proj.x +
+//        normal_cross_point.y() * point_proj.y
 //            + normal_cross_point.z() * point_proj.z);
 //
 //        float s = 1 - 0.9f * fabs(ld2);
@@ -514,15 +552,15 @@ FeatureManager::FeatureManager() {
 //        if (s > 0.1 && is_in_laser_fov) {
 //          PointPlaneFeature feature1;
 //          feature1.score = s * 0.5;
-//          feature1.point = Eigen::Vector3d{point_ori.x, point_ori.y, point_ori.z};
-//          feature1.coeffs = Eigen::Vector4d{coeff1.x, coeff1.y, coeff1.z, coeff1.intensity} * 0.5;
-//          features.push_back(feature1);
+//          feature1.point = Eigen::Vector3d{point_ori.x, point_ori.y,
+//          point_ori.z}; feature1.coeffs = Eigen::Vector4d{coeff1.x, coeff1.y,
+//          coeff1.z, coeff1.intensity} * 0.5; features.push_back(feature1);
 //
 //          PointPlaneFeature feature2;
 //          feature2.score = s * 0.5;
-//          feature2.point = Eigen::Vector3d{point_ori.x, point_ori.y, point_ori.z};
-//          feature2.coeffs = Eigen::Vector4d{coeff2.x, coeff2.y, coeff2.z, coeff2.intensity} * 0.5;
-//          features.push_back(feature2);
+//          feature2.point = Eigen::Vector3d{point_ori.x, point_ori.y,
+//          point_ori.z}; feature2.coeffs = Eigen::Vector4d{coeff2.x, coeff2.y,
+//          coeff2.z, coeff2.intensity} * 0.5; features.push_back(feature2);
 //        }
 //      }
 //    }
@@ -531,11 +569,15 @@ FeatureManager::FeatureManager() {
 //
 //}
 //
-//void FeatureManager::CalculateLaserOdom(const pcl::KdTreeFLANN<PointT>::Ptr &kdtree_surf_from_map,
-//                                        const PointCloudPtr &local_surf_points_filtered_ptr,
-//                                        const PointCloudPtr &surf_stack,
-//                                        const pcl::KdTreeFLANN<PointT>::Ptr &kdtree_corner_from_map,
-//                                        const PointCloudPtr &local_corner_points_filtered_ptr,
+// void FeatureManager::CalculateLaserOdom(const pcl::KdTreeFLANN<PointT>::Ptr
+// &kdtree_surf_from_map,
+//                                        const PointCloudPtr
+//                                        &local_surf_points_filtered_ptr, const
+//                                        PointCloudPtr &surf_stack, const
+//                                        pcl::KdTreeFLANN<PointT>::Ptr
+//                                        &kdtree_corner_from_map, const
+//                                        PointCloudPtr
+//                                        &local_corner_points_filtered_ptr,
 //                                        const PointCloudPtr &corner_stack,
 //                                        const Transform &local_transform,
 //                                        vector<PointPlaneFeature> &features) {
@@ -543,8 +585,10 @@ FeatureManager::FeatureManager() {
 //  bool is_degenerate = false;
 //  for (size_t iter_count = 0; iter_count < 10; ++iter_count) {
 //
-//    CalculateFeatures(kdtree_surf_from_map, local_surf_points_filtered_ptr, surf_stack,
-//                      kdtree_corner_from_map, local_corner_points_filtered_ptr, corner_stack,
+//    CalculateFeatures(kdtree_surf_from_map, local_surf_points_filtered_ptr,
+//    surf_stack,
+//                      kdtree_corner_from_map,
+//                      local_corner_points_filtered_ptr, corner_stack,
 //                      local_transform, features);
 //
 //    size_t laser_cloud_sel_size = features.size();
@@ -572,11 +616,13 @@ FeatureManager::FeatureManager() {
 //      Eigen::Vector3f p(point_ori.x, point_ori.y, point_ori.z);
 //      Eigen::Vector3f w(coeff.x, coeff.y, coeff.z);
 //
-////      Eigen::Vector3f J_r = w.transpose() * RotationVectorJacobian(R_SO3, p);
-//      Eigen::Vector3f J_r = -w.transpose() * (local_transform.rot * SkewSymmetric(p));
-//      Eigen::Vector3f J_t = w.transpose();
+////      Eigen::Vector3f J_r = w.transpose() * RotationVectorJacobian(R_SO3,
+///p);
+//      Eigen::Vector3f J_r = -w.transpose() * (local_transform.rot *
+//      SkewSymmetric(p)); Eigen::Vector3f J_t = w.transpose();
 //
-//      float d2 = w.transpose() * (local_transform.rot * p + local_transform.pos) + coeff.intensity;
+//      float d2 = w.transpose() * (local_transform.rot * p +
+//      local_transform.pos) + coeff.intensity;
 //
 //      mat_A(i, 0) = J_r.x();
 //      mat_A(i, 1) = J_r.y();
@@ -597,9 +643,9 @@ FeatureManager::FeatureManager() {
 //      Eigen::Matrix<float, 6, 6> mat_V;
 //      Eigen::Matrix<float, 6, 6> mat_V2;
 //
-//      Eigen::SelfAdjointEigenSolver<Eigen::Matrix<float, 6, 6>> esolver(matAtA);
-//      mat_E = esolver.eigenvalues().real();
-//      mat_V = esolver.eigenvectors().real();
+//      Eigen::SelfAdjointEigenSolver<Eigen::Matrix<float, 6, 6>>
+//      esolver(matAtA); mat_E = esolver.eigenvalues().real(); mat_V =
+//      esolver.eigenvectors().real();
 //
 //      mat_V2 = mat_V;
 //
@@ -629,14 +675,17 @@ FeatureManager::FeatureManager() {
 //    local_transform.pos.y() += mat_X(4, 0);
 //    local_transform.pos.z() += mat_X(5, 0);
 //
-//    local_transform.rot = local_transform.rot * DeltaQ(Eigen::Vector3f(mat_X(0, 0), mat_X(1, 0), mat_X(2, 0)));
+//    local_transform.rot = local_transform.rot *
+//    DeltaQ(Eigen::Vector3f(mat_X(0, 0), mat_X(1, 0), mat_X(2, 0)));
 //
 //    if (!isfinite(local_transform.pos.x())) local_transform.pos.x() = 0.0;
 //    if (!isfinite(local_transform.pos.y())) local_transform.pos.y() = 0.0;
 //    if (!isfinite(local_transform.pos.z())) local_transform.pos.z() = 0.0;
 //
-//    float delta_r = RadToDeg(R_SO3.unit_quaternion().angularDistance(local_transform.rot));
-//    float delta_t = sqrt(pow(mat_X(3, 0) * 100, 2) + pow(mat_X(4, 0) * 100, 2) + pow(mat_X(5, 0) * 100, 2));
+//    float delta_r =
+//    RadToDeg(R_SO3.unit_quaternion().angularDistance(local_transform.rot));
+//    float delta_t = sqrt(pow(mat_X(3, 0) * 100, 2) + pow(mat_X(4, 0) * 100, 2)
+//    + pow(mat_X(5, 0) * 100, 2));
 //
 //    if (delta_r < 0.05 && delta_t < 0.1) {
 //      DLOG(INFO) << "CalculateLaserOdom iter_count: " << iter_count;
@@ -645,4 +694,4 @@ FeatureManager::FeatureManager() {
 //  }
 //}
 
-}
+}  // namespace lio
