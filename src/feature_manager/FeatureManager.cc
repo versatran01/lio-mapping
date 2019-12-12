@@ -33,7 +33,6 @@
 namespace lio {
 
 void PointNormalFeature::UpdateCovariance(const Eigen::Vector3d &normal3d_in) {
-  ;
   Eigen::Matrix3d R =
       Eigen::Quaterniond::FromTwoVectors(e1, normal3d_in).toRotationMatrix();
   covariance = R * diag_covariance * R.transpose();
@@ -216,7 +215,7 @@ FeatureManager::FeatureManager() {}
 //      Eigen::Vector3f w(coeff.x, coeff.y, coeff.z);
 //
 ////      Eigen::Vector3f J_r = w.transpose() * RotationVectorJacobian(R_SO3,
-///p);
+/// p);
 //      Eigen::Vector3f J_r = -w.transpose() * (local_transform.rot *
 //      SkewSymmetric(p)); Eigen::Vector3f J_t = w.transpose();
 //
@@ -617,7 +616,7 @@ FeatureManager::FeatureManager() {}
 //      Eigen::Vector3f w(coeff.x, coeff.y, coeff.z);
 //
 ////      Eigen::Vector3f J_r = w.transpose() * RotationVectorJacobian(R_SO3,
-///p);
+/// p);
 //      Eigen::Vector3f J_r = -w.transpose() * (local_transform.rot *
 //      SkewSymmetric(p)); Eigen::Vector3f J_t = w.transpose();
 //

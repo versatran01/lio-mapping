@@ -793,9 +793,7 @@ void Estimator::ProcessLaserOdom(const Transform &transform_in,
 
         break;
       }
-      default: {
-        break;
-      }
+      default: { break; }
     }
   }
 
